@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>로그인 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="guest">
+  <main class="layout">
+    <section class="narrow auth" style="--w:380px">
+      <div class="screen-id">S02 · login.html · A</div>
+      <h1>로그인</h1>
+      <div class="card">
+        <label for="id">아이디</label>
+        <input id="id" value="user1">
+        <label for="pw">비밀번호</label>
+        <input id="pw" type="password" value="1234">
+        <p class="badge bad" style="margin-top:12px">아이디 또는 비밀번호가 틀렸습니다.</p>
+        <p class="muted" style="margin:4px 0 0">↑ 실패하면 서버가 보낸 message를 그대로 보여 주는 자리</p>
+        <div style="margin-top:14px">
+          <a class="btn" href="main.html" style="width:100%;text-align:center">로그인</a>
+        </div>
+        <p class="small" style="margin-top:14px">아직 회원이 아니신가요? <a href="signup.html">회원가입</a></p>
+      </div>
+    </section>
+
+  </main>
+  <script src="js/common.js"></script>
+</body>
+</html>

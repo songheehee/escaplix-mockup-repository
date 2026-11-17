@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>매장 상세 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="user">
+  <main class="layout">
+    <section>
+      <div class="screen-id">S28 (신규) · store.html?id=1 · B</div>
+      <div class="small" style="margin-bottom:8px"><a href="stores.html">← 매장 목록</a></div>
+
+      <div class="store-hero" id="hero">
+        <div>
+          <div class="small" id="s-brand" style="opacity:.85"></div>
+          <h1 id="s-name"></h1>
+          <p id="s-intro" style="margin:0 0 12px;opacity:.9"></p>
+          <div class="info">
+            <div><b>주소</b><span id="s-addr"></span></div>
+            <div><b>전화</b><span id="s-phone"></span></div>
+            <div><b>영업</b><span id="s-hours"></span></div>
+            <div><b>평점</b><span id="s-rate"></span></div>
+          </div>
+          <div class="row" style="margin-top:14px">
+            <a class="btn" id="s-site" target="_blank" rel="noopener" style="background:#fff;color:#1f1d1a;border-color:#fff">매장 예약 사이트 ↗</a>
+            <a class="btn" id="s-call" style="background:rgba(255,255,255,.18);border-color:transparent">☎ 전화</a>
+          </div>
+        </div>
+        <div class="map-ph" id="s-map">🗺 지도 자리<br>(매장 위치 표시)</div>
+      </div>
+
+      <h2 id="t-title">이 매장의 테마</h2>
+      <div class="store-themes" id="themes"></div>
+    </section>
+  </main>
+  <script src="js/common.js"></script>
+  <script src="js/stores-data.js"></script>
+  <script>
+    (function () {
+      const id = +(new URLSearchParams(location.search).get("id") || 1);
+      const s = STORES.find(function (x) { return x.id === id; }) || STORES[0];
+      const $ = function (k) { return document.getElementById(k); };
+
+      document.title = s.name + " · Escaplix 목업";
+      $("hero").classList.add("g-" + s.g);
+      $("s-brand").textContent = s.brand ? "브랜드 · " + s.brand + " · " + s.area : "개인 매장 · " + s.area;
+      $("s-name").textContent = s.name;
+      $("s-intro").textContent = s.intro;
+      $("s-addr").textContent = s.addr;
+      $("s-phone").textContent = s.phone;
+      $("s-hours").textContent = s.hours;
+      const r = storeRate(s);
+      $("s-rate").textContent = r ? "★ " + r.toFixed(1) + " (테마 평균)" : "아직 후기 없음";
+      $("s-site").href = s.site;          // 실제 서비스: http(s):// 로 시작하는지 검사 후 넣기
+      $("s-call").href = "tel:" + s.phone.replace(/-/g, "");
+      $("s-map").textContent = "🗺 지도 자리 · " + s.area;
+      $("t-title").textContent = "이 매장의 테마 " + s.themes.length + "개";
+
+      const box = $("themes");
+      s.themes.forEach(function (t) {
+        const c = el("div", "card");
+        const link = el("a");
+        link.href = "theme.html?id=" + t.id;
+        link.style.textDecoration = "none";
+        link.style.color = "inherit";
+        const poster = el("div", "poster g-" + t.g, t.name);
+        link.append(poster);
+        const tags = el("div");
+        t.genres.forEach(function (g) { tags.append(el("span", "tag", g)); });
+        link.append(tags);
+        link.append(el("div", "small", "난이도 " + t.lv + " · " + t.min + "분 · " + t.ppl + "명 · " + t.price.toLocaleString() + "원"));
+        link.append(el("div", "stars", t.rate ? "★ " + t.rate.toFixed(1) + " (" + t.reviews + ")" : "아직 후기 없음"));
+        c.append(link);
+
+        const p = el("a", "btn small " + (t.parties ? "ghost" : "gray"));
+        p.style.marginTop = "8px";
+        if (t.parties) {
+          p.href = "party-list.html?themeId=" + t.id;
+          p.textContent = "모집 중인 파티 " + t.parties + "개 →";
+        } else {
+          p.href = "party-form.html";
+          p.textContent = "파티 없음 · 직접 모집하기";
+        }
+        c.append(p);
+        box.append(c);
+      });
+    })();
+  </script>
+</body>
+</html>

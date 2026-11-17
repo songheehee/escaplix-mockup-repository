@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>매장 등록 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="owner">
+  <main class="layout">
+    <section class="narrow" style="--w:600px">
+      <div class="screen-id">S21 (신규) · store-form.html · C</div>
+      <h1>매장 등록</h1>
+      <p class="muted" style="margin-top:-8px">사장이 쓰는 화면이에요. 관리자는 헤더의 "직접 등록"으로 같은 화면을 써요 (주소 뒤에 <code>?as=admin</code>을 붙여 보세요).</p>
+      <div class="card">
+        <label>브랜드</label>
+        <select><option>미스터리룸</option><option>(브랜드 없음 · 개인 매장)</option></select>
+        <label>매장 이름</label>
+        <input value="미스터리룸 합정점">
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">
+          <div><label>지역</label><select><option>홍대</option><option selected>합정</option><option>강남</option></select></div>
+          <div><label>전화번호</label><input value="02-000-0009"></div>
+        </div>
+        <label>주소</label>
+        <input value="서울 마포구 (예시 주소) 2층">
+
+        <div class="small muted" style="margin-top:12px">사장 사업자등록번호 <b style="color:var(--ink)">111-22-33333</b> <span class="tag">가입 때 등록 · 자동</span></div>
+
+        <label>사업장 등록번호 (이 매장)</label>
+        <div class="row inline">
+          <input value="222-33-44444" style="flex:1">
+          <button class="btn gray small" type="button">중복 확인</button>
+        </div>
+        <p class="badge ok" style="margin-top:6px">등록되지 않은 번호예요</p>
+        <p class="muted" style="margin:4px 0 0">매장마다 하나뿐이라 이미 등록된 번호면 저장할 수 없어요 (409)</p>
+
+        <label>사업장등록증 (이미지)</label>
+        <input type="file" accept="image/*">
+        <div class="img-ph" style="height:120px;margin-top:8px">사업장등록증.jpg 미리보기 자리<br>관리자가 이 사진을 보고 실제 매장인지 확인해요</div>
+
+        <div class="row" style="margin-top:16px">
+          <a class="btn" href="owner.html">승인 요청</a>
+          <a class="btn gray" href="owner.html">취소</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="js/common.js"></script>
+</body>
+</html>

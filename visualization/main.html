@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>테마 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+  <style>
+    /* ---------- 테마 메인: 어두운 스트리밍 서비스 느낌 ---------- */
+
+    /* 히어로 */
+    .hero {
+      position: relative; min-height: 420px; display: flex; align-items: flex-end;
+      padding: 40px 4vw 56px;
+      background:
+        linear-gradient(to top, var(--bg) 0%, rgba(var(--bg-rgb),.6) 35%, rgba(var(--bg-rgb),0) 70%),
+        linear-gradient(to right, rgba(var(--bg-rgb),.95) 0%, rgba(var(--bg-rgb),.4) 55%, rgba(var(--bg-rgb),0) 100%),
+        radial-gradient(circle at 75% 35%, var(--glow, #8a5cc4) 0%, var(--glow2, #3b2f4f) 45%, #1a1520 80%);
+    }
+    .hero-inner { max-width: 560px; }
+    .hero .kicker { font-size: 13px; letter-spacing: 2px; color: #c9a8ff; font-weight: 700; }
+    .hero h1 { font-size: clamp(32px, 5vw, 54px); margin: 6px 0 10px; line-height: 1.1; color: #fff; text-shadow: 0 2px 16px rgba(0,0,0,.5); }
+    .hero .meta { font-size: 14px; color: #cfc8d8; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .hero .meta .match { color: #7ee2a8; font-weight: 700; }
+    .hero p { color: #ddd6e6; font-size: 15px; margin: 12px 0 18px; }
+    .hero .btn { font-size: 15px; padding: 10px 20px; border-radius: 6px; font-weight: 700; }
+    .btn-light { background: #fff; color: #1d1a24; border-color: #fff; }
+    .btn-dim { background: rgba(120, 110, 130, .45); color: #fff; border-color: transparent; }
+    .hero .silhouette { position: absolute; right: 8vw; bottom: 60px; font-size: clamp(90px, 14vw, 180px); opacity: .22; filter: blur(.5px); pointer-events: none; }
+
+    /* 필터 줄 */
+
+    /* 줄(row) */
+    .rows { padding: 18px 0 60px; }
+    .row-sec { margin: 22px 0 6px; position: relative; }
+    .row-sec h2 { margin: 0 4vw 10px; font-size: 19px; color: var(--ink); display: flex; align-items: baseline; gap: 10px; }
+    .row-sec h2 small { font-size: 12px; color: var(--muted); font-weight: 400; }
+    .track { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 4vw; padding: 14px 4vw 26px; scrollbar-width: none; }
+    .track::after { content: ""; flex: 0 0 1px; } /* 오른쪽 끝 여백 유지 */
+    .track::-webkit-scrollbar { display: none; }
+    .nav-arrow { position: absolute; top: 44px; bottom: 26px; width: 4vw; min-width: 34px; border: 0; background: rgba(var(--bg-rgb),.6); color: #fff; font-size: 26px; cursor: pointer; z-index: 3; opacity: 0; transition: opacity .2s; color: var(--ink); }
+    .row-sec:hover .nav-arrow { opacity: 1; }
+    .nav-arrow.left { left: 0; } .nav-arrow.right { right: 0; }
+
+    /* 카드 */
+    .tcard {
+      flex: 0 0 auto; width: 230px; scroll-snap-align: start; position: relative;
+      border-radius: 6px; text-decoration: none; color: #fff;
+      transition: transform .25s ease, box-shadow .25s ease; transform-origin: center;
+    }
+    .tcard .art { height: 130px; border-radius: 6px; display: flex; align-items: flex-end; padding: 10px; font-weight: 800; font-size: 17px; position: relative; overflow: hidden; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+    .tcard .art .emoji { position: absolute; right: 10px; top: 6px; font-size: 40px; opacity: .55; }
+    .tcard .art .ribbon { position: absolute; left: 8px; top: 8px; font-size: 11px; font-weight: 700; background: #e0a43a; color: #1a1300; padding: 1px 7px; border-radius: 3px; text-shadow: none; }
+    .tcard { overflow: hidden; }
+    .tcard .info {
+      position: absolute; inset: 0; border-radius: 6px; padding: 10px 12px;
+      display: flex; flex-direction: column; justify-content: flex-end; gap: 2px;
+      background: linear-gradient(to top, rgba(22,19,28,.95) 0%, rgba(22,19,28,.82) 55%, rgba(22,19,28,.2) 100%);
+      font-size: 12px; color: #cfc8d8; opacity: 0; transition: opacity .2s ease;
+    }
+    .tcard .info .nm { font-weight: 800; font-size: 15px; color: #fff; }
+    .tcard .info .line1 { color: #7ee2a8; font-weight: 700; }
+    .tcard .info .tags { color: #c2bacd; }
+    .tcard .info .party { color: #c9a8ff; font-weight: 600; }
+    .tcard:hover { transform: scale(1.1); z-index: 4; box-shadow: 0 10px 30px rgba(0,0,0,.7); }
+    .tcard:hover .info { opacity: 1; }
+    .track > .tcard:first-child { transform-origin: left center; }
+
+    /* TOP 순위 줄 */
+    .rank { flex: 0 0 auto; display: flex; align-items: flex-end; scroll-snap-align: start; text-decoration: none; color: #fff; }
+    .rank .no { font-size: 150px; font-weight: 900; line-height: .8; color: var(--bg); -webkit-text-stroke: 3px var(--rank-stroke); margin-right: -22px; letter-spacing: -8px; }
+    .rank .art { width: 120px; height: 170px; border-radius: 6px; display: flex; align-items: flex-end; padding: 8px; font-weight: 800; font-size: 14px; position: relative; z-index: 1; transition: transform .25s; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+    .rank:hover .art { transform: scale(1.06); }
+
+    /* 장르별 배경 */
+    .g-horror { background: linear-gradient(135deg, #2a0f14, #7b2333 60%, #c0394f); }
+    .g-mystery { background: linear-gradient(135deg, #10202f, #2c4f73 60%, #4f7aa5); }
+    .g-emotion { background: linear-gradient(135deg, #1d3a33, #3f7d6b 60%, #7fc2a5); }
+    .g-stealth { background: linear-gradient(135deg, #1b1b22, #44445a 60%, #77789a); }
+    .g-sf { background: linear-gradient(135deg, #0d1030, #2b2f7a 60%, #5a6fd6); }
+    .g-adventure { background: linear-gradient(135deg, #3a240c, #8a5a1f 60%, #d2a043); }
+
+    .result-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); padding: 14px 4vw 26px; }
+    .result-grid .tcard { width: auto; }
+    /* 추천 캐러셀: 슬라이드(.hero)를 가로로 붙여 두고 트랙을 옆으로 민다 */
+    .hero-carousel { position: relative; overflow: hidden; }
+    .hero-carousel[hidden] { display: none; }
+    .hero-track { display: flex; transition: transform .7s cubic-bezier(.65, 0, .35, 1); }
+    .hero-track > .hero { flex: 0 0 100%; }
+    .hero .reason { display: inline-block; margin-top: 8px; font-size: 12.5px; padding: 3px 10px; border-radius: 99px; background: rgba(255,255,255,.14); color: #f0e8ff; }
+    [data-theme="light"] .hero .reason { background: rgba(107, 63, 160, .12); color: #4b2d75; }
+    .hc-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(0,0,0,.35); color: #fff; font-size: 24px; cursor: pointer; z-index: 2; opacity: 0; transition: opacity .2s; }
+    .hero-carousel:hover .hc-arrow, .hc-arrow:focus-visible { opacity: 1; }
+    .hc-arrow.prev { left: 14px; } .hc-arrow.next { right: 14px; }
+    .hc-dots { position: absolute; left: 4vw; bottom: 22px; display: flex; gap: 6px; z-index: 2; align-items: center; }
+    .hc-dots button { width: 8px; height: 8px; border-radius: 99px; border: 0; padding: 0; background: rgba(255,255,255,.35); cursor: pointer; transition: width .3s, background .3s; }
+    .hc-dots button.on { width: 26px; background: #fff; }
+    [data-theme="light"] .hc-dots button { background: rgba(31,27,38,.25); }
+    [data-theme="light"] .hc-dots button.on { background: #6b3fa0; }
+    .hc-pause { margin-left: 8px; border: 0; background: none; color: inherit; font-size: 12px; cursor: pointer; opacity: .75; }
+    @media (prefers-reduced-motion: reduce) { .hero-track { transition: none; } }
+    .later-row { margin: 0 4vw; padding: 14px 16px; border: 1px dashed var(--line); border-radius: 6px; color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 640px) {
+      .hero { min-height: 340px; padding-bottom: 46px; }
+      .tcard { width: 170px; }
+      .tcard .art { height: 100px; font-size: 15px; }
+      .tcard:hover { transform: none; }
+      .rank .no { font-size: 110px; }
+      .rank .art { width: 96px; height: 136px; }
+    }
+
+    /* 라이트 모드: 큰 배너 글자를 어둡게 (배경이 밝은 쪽으로 번지니까) */
+    [data-theme="light"] .hero { background:
+        linear-gradient(to top, var(--bg) 0%, rgba(var(--bg-rgb),.55) 30%, rgba(var(--bg-rgb),0) 65%),
+        linear-gradient(to right, rgba(var(--bg-rgb),.97) 0%, rgba(var(--bg-rgb),.75) 45%, rgba(var(--bg-rgb),0) 85%),
+        radial-gradient(circle at 75% 35%, var(--glow, #b48ef0) 0%, var(--glow2, #8a5cc4) 40%, #e9e1f6 85%); }
+    [data-theme="light"] .hero h1 { color: #1f1b26; text-shadow: none; }
+    [data-theme="light"] .hero .kicker { color: #6b3fa0; }
+    [data-theme="light"] .hero .meta { color: #4a4356; }
+    [data-theme="light"] .hero .meta .match { color: #2f7a4a; }
+    [data-theme="light"] .hero p { color: #3a3445; }
+    [data-theme="light"] .btn-light { background: #1f1b26; color: #fff; border-color: #1f1b26; }
+    [data-theme="light"] .btn-dim { background: rgba(31, 27, 38, .1); color: #1f1b26; }
+    [data-theme="light"] .hero .silhouette { opacity: .3; }
+    [data-theme="light"] .tcard:hover { box-shadow: 0 10px 28px rgba(60, 40, 90, .3); }
+  </style>
+</head>
+<body data-as="user" class="cinema">
+  <!-- 히어로: 탈출왕 님을 위한 추천 (여러 개, 자동으로 옆으로 넘어감) -->
+  <section class="hero-carousel" id="hero" aria-roledescription="carousel" aria-label="맞춤 추천">
+    <div class="hero-track" id="hero-track"></div>
+    <button class="hc-arrow prev" type="button" aria-label="이전 추천">‹</button>
+    <button class="hc-arrow next" type="button" aria-label="다음 추천">›</button>
+    <div class="hc-dots" id="hc-dots"></div>
+  </section>
+
+
+  <div class="rows" id="rows"></div>
+
+  <script src="js/common.js"></script>
+  <script>
+    // 가짜 테마 데이터 (실제 서비스에선 B-1 GET /api/themes)
+    const THEMES = [
+      { id: 1, name: "저주받은 인형의 집", store: "미스터리룸 홍대점", genres: ["공포", "추리"], g: "horror", e: "🪆", lv: 4, min: 70, ppl: "2~4", rate: 4.0, parties: 2 },
+      { id: 2, name: "할머니의 다락방", store: "미스터리룸 홍대점", genres: ["감성"], g: "emotion", e: "🕯️", lv: 2, min: 60, ppl: "2~4", rate: 4.7, parties: 1 },
+      { id: 3, name: "13번째 배심원", store: "미스터리룸 홍대점", genres: ["추리"], g: "mystery", e: "⚖️", lv: 3, min: 75, ppl: "2~5", rate: 4.2, parties: 0 },
+      { id: 4, name: "가면 무도회", store: "어둠상자 홍대점", genres: ["잠입", "추리"], g: "stealth", e: "🎭", lv: 4, min: 70, ppl: "2~4", rate: null, parties: 0, isNew: true },
+      { id: 5, name: "금고털이", store: "미스터리룸 강남점", genres: ["잠입", "추리"], g: "stealth", e: "💰", lv: 4, min: 60, ppl: "2~4", rate: 5.0, parties: 1 },
+      { id: 6, name: "폐병원 304호", store: "열쇠공방 건대점", genres: ["공포"], g: "horror", e: "🏥", lv: 5, min: 70, ppl: "2~4", rate: 4.5, parties: 1 },
+      { id: 7, name: "우주정거장 탈출", store: "미스터리룸 강남점", genres: ["SF"], g: "sf", e: "🚀", lv: 3, min: 65, ppl: "2~5", rate: 4.1, parties: 0 },
+      { id: 8, name: "좀비 연구소", store: "열쇠공방 신촌점", genres: ["공포", "어드벤처"], g: "horror", e: "🧟", lv: 4, min: 60, ppl: "3~6", rate: 3.0, parties: 0 },
+      { id: 9, name: "사라진 기억", store: "어둠상자 홍대점", genres: ["추리", "감성"], g: "mystery", e: "🧩", lv: 3, min: 70, ppl: "2~4", rate: 4.4, parties: 0 },
+      { id: 10, name: "명탐정의 마지막 사건", store: "열쇠공방 신촌점", genres: ["추리"], g: "mystery", e: "🔎", lv: 4, min: 80, ppl: "2~5", rate: 4.3, parties: 0, isNew: true },
+      { id: 11, name: "황금 신전의 비밀", store: "열쇠공방 건대점", genres: ["어드벤처"], g: "adventure", e: "🗿", lv: 3, min: 70, ppl: "2~6", rate: 4.0, parties: 0, isNew: true },
+    ];
+
+    const ROWS = [
+      { title: "이번 주 인기 TOP 5", note: "평점·찜 기준", rank: true, list: THEMES.filter(t => t.rate).sort((a, b) => b.rate - a.rate).slice(0, 5) },
+      { title: "지금 파티 모집 중", note: "같이 갈 사람이 기다리는 테마", list: THEMES.filter(t => t.parties > 0) },
+      { title: "심장이 쫄깃한 공포", list: THEMES.filter(t => t.genres.includes("공포")) },
+      { title: "머리 쓰는 추리", list: THEMES.filter(t => t.genres.includes("추리")) },
+      { title: "새로 문을 연 테마", note: "최근 승인", list: THEMES.filter(t => t.isNew) },
+      { title: "감성 · 어드벤처 · SF", list: THEMES.filter(t => t.genres.some(x => ["감성", "어드벤처", "SF"].includes(x))) },
+    ];
+
+    function el(tag, cls, text) {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+
+    function card(t) {
+      const a = el("a", "tcard");
+      a.href = "theme.html?id=" + t.id;
+      const art = el("div", "art g-" + t.g, t.name);
+      art.append(el("span", "emoji", t.e));
+      if (t.isNew) art.append(el("span", "ribbon", "NEW"));
+      else if (t.parties > 0) art.append(el("span", "ribbon", "파티 모집 중"));
+      a.append(art);
+
+      const info = el("div", "info");
+      info.append(el("div", "nm", t.name));
+      info.append(el("div", "line1", (t.rate ? "★ " + t.rate.toFixed(1) : "후기 없음") + " · 난이도 " + t.lv + " · " + t.min + "분 · " + t.ppl + "명"));
+      info.append(el("div", "tags", t.genres.join(" · ") + " · " + t.store));
+      if (t.parties > 0) info.append(el("div", "party", "모집 중인 파티 " + t.parties + "개 →"));
+      a.append(info);
+      return a;
+    }
+
+    function rankCard(t, i) {
+      const a = el("a", "rank");
+      a.href = "theme.html?id=" + t.id;
+      a.append(el("span", "no", String(i + 1)));
+      a.append(el("div", "art g-" + t.g, t.name));
+      return a;
+    }
+
+    const root = document.getElementById("rows");
+
+    // 헤더의 검색·필터로 들어온 경우: 큰 배너와 줄 대신 결과 격자
+    // (실제 서비스: B-1 GET /api/themes?keyword=&area=&date=&people=&genreId=&sort=)
+    const P = new URLSearchParams(location.search);
+    const F = {
+      q: (P.get("q") || "").trim(), area: P.get("area") || "", date: P.get("date") || "",
+      people: P.get("people") || "", genre: P.get("genre") || "", sort: P.get("sort") || "rate",
+    };
+    const q = F.q || F.area || F.date || F.people || F.genre || P.get("sort");
+    if (q) {
+      document.getElementById("hero").hidden = true;
+      const key = F.q.replace(/\s+/g, "");
+      const hits = THEMES.filter(function (t) {
+        if (key && (t.name + t.store).replace(/\s+/g, "").indexOf(key) === -1) return false;
+        if (F.area && t.store.indexOf(F.area) === -1) return false;
+        if (F.genre && t.genres.indexOf(F.genre) === -1) return false;
+        if (F.people) {
+          const r = t.ppl.split("~").map(Number);
+          if (+F.people < r[0] || +F.people > r[1]) return false;
+        }
+        return true; // 날짜: 목업은 모든 테마에 시간표가 있다고 가정
+      });
+      hits.sort(F.sort === "new"
+        ? function (a, b) { return b.id - a.id; }
+        : function (a, b) { return (b.rate || 0) - (a.rate || 0); });
+
+      const parts = [];
+      if (F.q) parts.push("‘" + F.q + "’");
+      if (F.area) parts.push(F.area);
+      if (F.date) parts.push(F.date.slice(5).replace("-", "/"));
+      if (F.people) parts.push(F.people + "명");
+      if (F.genre) parts.push(F.genre);
+      parts.push(F.sort === "new" ? "최신순" : "평점순");
+
+      const sec = el("section", "row-sec");
+      sec.style.marginTop = "28px";
+      const h = el("h2", null, parts.join(" · ") + " 결과");
+      h.append(el("small", null, hits.length + "개"));
+      const back = el("a", null, "전체 테마 보기 →");
+      back.href = "main.html";
+      back.style.cssText = "margin-left:auto;font-size:13px;color:#c9a8ff;font-weight:400";
+      h.append(back);
+      sec.append(h);
+      if (hits.length) {
+        const wrap = el("div", "result-grid");
+        hits.forEach(function (t) { wrap.append(card(t)); });
+        sec.append(wrap);
+      } else {
+        sec.append(el("div", "later-row", "찾는 테마나 매장이 없어요. 다른 이름으로 검색해 보세요."));
+      }
+      root.append(sec);
+    }
+
+    if (!q) ROWS.forEach(function (r) {
+      if (!r.list.length) return;
+      const sec = el("section", "row-sec");
+      const h = el("h2", null, r.title);
+      if (r.note) h.append(el("small", null, r.note));
+      sec.append(h);
+
+      const track = el("div", "track");
+      r.list.forEach(function (t, i) { track.append(r.rank ? rankCard(t, i) : card(t)); });
+
+      const left = el("button", "nav-arrow left", "‹");
+      const right = el("button", "nav-arrow right", "›");
+      left.type = right.type = "button";
+      left.addEventListener("click", function () { track.scrollBy({ left: -track.clientWidth * 0.8, behavior: "smooth" }); });
+      right.addEventListener("click", function () { track.scrollBy({ left: track.clientWidth * 0.8, behavior: "smooth" }); });
+      sec.append(left, track, right);
+      root.append(sec);
+    });
+
+
+    // ---------- 추천 캐러셀 ----------
+    // 실제 서비스: D-8 GET /api/my/recommendations (가입 때 고른 선호 장르 기준, 메인에만)
+    (function () {
+      const ME = { nick: "탈출왕", genres: ["공포", "추리"] };
+      const PICKS = [
+        { id: 1, why: "공포 · 추리 둘 다 좋아하는 탈출왕 님께", desc: "밤마다 자리를 바꾸는 인형들. 인형이 숨긴 단서를 찾아 집을 빠져나가세요.", price: 25000, glow: ["#c0394f", "#4a1822"] },
+        { id: 5, why: "추리 장르 평점 1위", desc: "보안 시스템을 피해 3중 금고를 열어라. 한 번의 실수도 허락되지 않는 잠입 추리.", price: 26000, glow: ["#5a6fd6", "#232a52"] },
+        { id: 6, why: "공포 좋아하시면 꼭", desc: "불 꺼진 병동 304호. 환자 기록을 따라가다 보면 문이 하나씩 잠겨요.", price: 25000, glow: ["#a5584f", "#3a1d1a"] },
+        { id: 10, why: "새로 문을 연 추리 테마", desc: "은퇴를 앞둔 명탐정의 마지막 사건. 80분 동안 진범을 찾아야 해요.", price: 26000, glow: ["#4f7aa5", "#1b2a3c"] },
+        { id: 9, why: "추리를 좋아하는 분들이 많이 찜했어요", desc: "눈을 떠 보니 낯선 방. 흩어진 기억 조각을 맞춰 내가 누군지 알아내세요.", price: 24000, glow: ["#8a5cc4", "#2f2440"] },
+      ];
+      const hero = document.getElementById("hero");
+      if (hero.hidden) return;
+      const track = document.getElementById("hero-track");
+      const dotsBox = document.getElementById("hc-dots");
+
+      PICKS.forEach(function (pk, i) {
+        const t = THEMES.find(function (x) { return x.id === pk.id; });
+        const slide = el("div", "hero");
+        slide.style.setProperty("--glow", pk.glow[0]);
+        slide.style.setProperty("--glow2", pk.glow[1]);
+        slide.setAttribute("role", "group");
+        slide.setAttribute("aria-roledescription", "slide");
+        slide.setAttribute("aria-label", (i + 1) + " / " + PICKS.length);
+
+        slide.append(el("div", "silhouette", t.e));
+        const inner = el("div", "hero-inner");
+        inner.append(el("div", "kicker", ME.nick + " 님을 위한 추천 " + (i + 1) + "/" + PICKS.length));
+        inner.append(el("h1", null, t.name));
+        const meta = el("div", "meta");
+        [t.rate ? "★ " + t.rate.toFixed(1) : "새 테마", "난이도 " + t.lv, t.min + "분", t.ppl + "명", "1인 " + pk.price.toLocaleString() + "원", t.store]
+          .forEach(function (m, k) { meta.append(el("span", k === 0 ? "match" : null, m)); });
+        inner.append(meta);
+        inner.append(el("span", "reason", "💡 " + pk.why));
+        inner.append(el("p", null, pk.desc));
+        const row = el("div", "row");
+        const go = el("a", "btn btn-light", "▶ 상세 보기"); go.href = "theme.html?id=" + t.id;
+        row.append(go);
+        if (t.parties) {
+          const pt = el("a", "btn btn-dim", "👥 모집 중인 파티 " + t.parties); pt.href = "party-list.html?themeId=" + t.id;
+          row.append(pt);
+        } else {
+          const pt = el("a", "btn btn-dim", "👥 파티 모집하기"); pt.href = "party-form.html";
+          row.append(pt);
+        }
+        const wish = el("a", "btn btn-dim", "♡"); wish.href = "#"; wish.title = "찜하기";
+        row.append(wish);
+        inner.append(row);
+        slide.append(inner);
+        track.append(slide);
+
+        const d = el("button");
+        d.type = "button";
+        d.setAttribute("aria-label", (i + 1) + "번째 추천 보기");
+        d.addEventListener("click", function () { go_(i); restart(); });
+        dotsBox.append(d);
+      });
+
+      const pauseBtn = el("button", "hc-pause", "⏸");
+      pauseBtn.type = "button";
+      dotsBox.append(pauseBtn);
+
+      let idx = 0, timer = null, paused = false;
+      const slides = track.children, dots = dotsBox.querySelectorAll("button:not(.hc-pause)");
+      function go_(n) {
+        idx = (n + PICKS.length) % PICKS.length;
+        track.style.transform = "translateX(" + (-100 * idx) + "%)";
+        dots.forEach(function (d, k) { d.classList.toggle("on", k === idx); });
+        Array.prototype.forEach.call(slides, function (sl, k) {
+          sl.setAttribute("aria-hidden", String(k !== idx));
+          sl.querySelectorAll("a, button").forEach(function (a) { a.tabIndex = k === idx ? 0 : -1; });
+        });
+      }
+      function start() { if (!paused && !timer) timer = setInterval(function () { go_(idx + 1); }, 5000); }
+      function stop() { clearInterval(timer); timer = null; }
+      function restart() { stop(); start(); }
+
+      hero.querySelector(".prev").addEventListener("click", function () { go_(idx - 1); restart(); });
+      hero.querySelector(".next").addEventListener("click", function () { go_(idx + 1); restart(); });
+      pauseBtn.addEventListener("click", function () {
+        paused = !paused;
+        pauseBtn.textContent = paused ? "▶" : "⏸";
+        pauseBtn.setAttribute("aria-label", paused ? "자동 넘김 켜기" : "자동 넘김 멈추기");
+        paused ? stop() : start();
+      });
+      pauseBtn.setAttribute("aria-label", "자동 넘김 멈추기");
+      // 마우스를 올리거나 키보드로 들어오면 잠깐 멈춤
+      hero.addEventListener("mouseenter", stop);
+      hero.addEventListener("mouseleave", start);
+      hero.addEventListener("focusin", stop);
+      hero.addEventListener("focusout", start);
+      // 휴대폰: 옆으로 밀어서 넘기기
+      let x0 = null;
+      hero.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; stop(); }, { passive: true });
+      hero.addEventListener("touchend", function (e) {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 40) go_(idx + (dx < 0 ? 1 : -1));
+        x0 = null; start();
+      });
+      // 움직임 줄이기 설정이면 자동 넘김 안 함
+      if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        paused = true; pauseBtn.textContent = "▶";
+      }
+      go_(0);
+      start();
+    })();
+  </script>
+</body>
+</html>

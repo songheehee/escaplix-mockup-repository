@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>손님 회원가입 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="guest">
+  <main class="layout">
+    <section class="narrow" style="--w:460px">
+      <div class="screen-id">S03-1 · signup-user.html · A</div>
+      <div class="small"><a href="signup.html">← 가입 유형 다시 고르기</a></div>
+      <h1>🔑 손님 회원가입</h1>
+      <div class="card">
+        <label for="id">아이디</label>
+        <div class="row inline">
+          <input id="id" value="user9" style="flex:1">
+          <button class="btn gray small" type="button">중복 확인</button>
+        </div>
+        <p class="badge ok" style="margin-top:6px">사용할 수 있는 아이디예요</p>
+
+        <label for="pw">비밀번호</label>
+        <input id="pw" type="password" value="1234">
+
+        <label for="pw2">비밀번호 확인</label>
+        <input id="pw2" type="password" value="1234">
+        <p id="pw-msg" class="badge ok" style="margin-top:6px">비밀번호가 같아요</p>
+
+        <label for="nick">닉네임</label>
+        <input id="nick" value="새회원">
+
+        <label>좋아하는 장르 (여러 개)</label>
+        <div class="row small">
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" checked style="width:auto"> 공포</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" checked style="width:auto"> 추리</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" style="width:auto"> 감성</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" style="width:auto"> 코믹</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" style="width:auto"> 어드벤처</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" style="width:auto"> SF</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" style="width:auto"> 잠입</label>
+        </div>
+        <p class="muted" style="margin:4px 0 0">나중에 마이페이지 → 내 정보에서 바꿀 수 있어요</p>
+
+        <div style="margin-top:16px"><a class="btn" href="login.html" style="width:100%;text-align:center">가입하기</a></div>
+      </div>
+    </section>
+  </main>
+  <script src="js/common.js"></script>
+  <script src="js/signup.js"></script>
+</body>
+</html>

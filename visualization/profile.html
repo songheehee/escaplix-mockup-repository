@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>내 정보 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+  <style>
+    .profile-wrap { display: grid; gap: 14px; max-width: 640px; margin: 0 auto; }
+    .profile-wrap h2 { margin: 0 0 4px; }
+    .sec-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .readonly { background:var(--surface2); color: var(--muted); }
+    .genre-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .genre-chips label { margin: 0; font-weight: 400; }
+    .genre-chips input { display: none; }
+    .genre-chips span { display: inline-block; padding: 6px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface2); cursor: pointer; font-size: 14px; }
+    .genre-chips input:checked + span { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .genre-chips input:checked + span::before { content: "✓ "; }
+  </style>
+</head>
+<body data-as="user">
+  <main class="layout">
+    <section>
+      <div class="screen-id">S26 (신규) · profile.html (마이페이지 내 정보 탭) · A</div>
+      <h1>탈출왕 님의 마이페이지</h1>
+      <div class="tabs">
+        <a href="mypage.html">내 기록</a>
+        <a href="wishes.html">찜 목록 (3)</a>
+        <a href="chats.html">내 채팅 (3)</a>
+        <a class="on" href="profile.html">내 정보</a>
+      </div>
+
+      <div class="profile-wrap">
+        <!-- 1. 기본 정보 -->
+        <div class="card">
+          <h2>기본 정보</h2>
+          <label for="login-id">아이디</label>
+          <input id="login-id" class="readonly" value="user1" readonly>
+          <p class="muted" style="margin:4px 0 0">아이디는 바꿀 수 없어요</p>
+
+          <label for="nick">닉네임</label>
+          <input id="nick" value="탈출왕" maxlength="20">
+
+          <div class="row small muted" style="margin-top:10px">
+            <span>회원 유형 <b style="color:var(--ink)">손님</b></span>
+            <span>· 가입일 2026-11-16</span>
+          </div>
+          <div class="sec-foot"><button class="btn">기본 정보 저장</button></div>
+        </div>
+
+        <!-- 2. 비밀번호 변경 -->
+        <div class="card">
+          <h2>비밀번호 변경</h2>
+          <label for="pw-now">현재 비밀번호</label>
+          <input id="pw-now" type="password" placeholder="지금 쓰는 비밀번호">
+          <label for="pw-new">새 비밀번호</label>
+          <input id="pw-new" type="password">
+          <label for="pw-new2">새 비밀번호 확인</label>
+          <input id="pw-new2" type="password">
+          <p id="pw-msg" class="badge" style="margin-top:6px">새 비밀번호를 두 번 입력해 주세요</p>
+          <div class="sec-foot"><button class="btn" id="pw-save" disabled>비밀번호 변경</button></div>
+        </div>
+
+        <!-- 3. 선호 장르 (마이페이지 내 기록 탭에서 이사 옴) -->
+        <div class="card">
+          <h2>선호 장르</h2>
+          <p class="muted" style="margin:0">가입할 때 고른 장르예요. 여러 개 고를 수 있어요.</p>
+          <div class="genre-chips">
+            <label><input type="checkbox" checked><span>공포</span></label>
+            <label><input type="checkbox" checked><span>추리</span></label>
+            <label><input type="checkbox"><span>감성</span></label>
+            <label><input type="checkbox"><span>코믹</span></label>
+            <label><input type="checkbox"><span>어드벤처</span></label>
+            <label><input type="checkbox"><span>SF</span></label>
+            <label><input type="checkbox"><span>잠입</span></label>
+          </div>
+          <div class="sec-foot"><button class="btn">선호 장르 저장</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="js/common.js"></script>
+  <script>
+    // 목업 전용: 새 비밀번호 두 칸이 같고, 현재 비밀번호가 채워져야 변경 버튼이 켜진다
+    (function () {
+      const now = document.getElementById("pw-now");
+      const a = document.getElementById("pw-new");
+      const b = document.getElementById("pw-new2");
+      const msg = document.getElementById("pw-msg");
+      const save = document.getElementById("pw-save");
+      function check() {
+        let ok = false;
+        if (a.value === "" || b.value === "") {
+          msg.className = "badge";
+          msg.textContent = "새 비밀번호를 두 번 입력해 주세요";
+        } else if (a.value !== b.value) {
+          msg.className = "badge bad";
+          msg.textContent = "새 비밀번호가 서로 달라요";
+        } else if (a.value === now.value) {
+          msg.className = "badge warn";
+          msg.textContent = "지금 비밀번호와 같아요";
+        } else {
+          msg.className = "badge ok";
+          msg.textContent = "새 비밀번호가 같아요";
+          ok = now.value !== "";
+        }
+        save.disabled = !ok;
+      }
+      [now, a, b].forEach(function (x) { x.addEventListener("input", check); });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>회원 관리 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="admin">
+  <main class="layout">
+    <section>
+      <div class="screen-id">S07 · admin-members.html · A</div>
+      <h1>회원 관리</h1>
+      <div class="tabs">
+        <a class="on">전체 (8)</a>
+        <a>손님 USER (5)</a>
+        <a>사장 OWNER (3)</a>
+      </div>
+      <div class="row inline" style="margin-bottom:12px">
+        <input placeholder="아이디나 닉네임 일부">
+        <button class="btn">검색</button>
+      </div>
+      <table>
+        <tr><th>번호</th><th>아이디</th><th>닉네임</th><th>역할</th><th>관리 매장</th><th>가입일</th></tr>
+        <tr><td>1</td><td>owner1</td><td>미스터리룸홍대</td><td><span class="badge accent">OWNER</span></td><td>미스터리룸 홍대점 외 1</td><td>11/16</td></tr>
+        <tr><td>2</td><td>owner2</td><td>비밀의서재</td><td><span class="badge accent">OWNER</span></td><td>(승인 대기 1)</td><td>11/16</td></tr>
+        <tr><td>3</td><td>owner3</td><td>열쇠공방</td><td><span class="badge accent">OWNER</span></td><td>열쇠공방 건대점</td><td>11/16</td></tr>
+        <tr><td>4</td><td>user1</td><td>탈출왕</td><td><span class="badge">USER</span></td><td>-</td><td>11/16</td></tr>
+        <tr><td>5</td><td>user2</td><td>힌트없이</td><td><span class="badge">USER</span></td><td>-</td><td>11/16</td></tr>
+        <tr><td>7</td><td>user4</td><td>방린이</td><td><span class="badge">USER</span></td><td>-</td><td>11/16</td></tr>
+      </table>
+    </section>
+
+  </main>
+  <script src="js/common.js"></script>
+</body>
+</html>

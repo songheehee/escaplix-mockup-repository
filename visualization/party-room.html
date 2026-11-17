@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>파티 방 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+  <style>
+    /* 보기 전환: #room의 data-view 값에 맞는 요소만 보인다 */
+    #room [data-only] { display: none; }
+    #room[data-view="leader"] [data-only~="leader"],
+    #room[data-view="member"] [data-only~="member"] { display: revert; }
+    .view-switch .btn.on { background: var(--accent); color: #fff; }
+
+    /* 참여자 명단(좌) + 채팅(우) */
+    .room-split { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 12px; margin-top: 12px; align-items: stretch; }
+    .room-members, .room-chat { padding: 12px; display: flex; flex-direction: column; }
+    .member-list { list-style: none; margin: 8px 0 0; padding: 0; font-size: 14px; }
+    .member-list li { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--line); min-height: 34px; }
+    .member-list li.empty { color:var(--muted); font-size: 13px; border-bottom-style: dashed; }
+    .member-list .kick { padding: 2px 8px; font-size: 12px; }
+    .member-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 10px; }
+    .room-chat .chat { flex: 1; height: 260px; max-height: none; margin-top: 8px; background:var(--surface2); border-radius: 8px; padding: 8px; }
+    @media (max-width: 640px) {
+      .room-split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-as="user">
+  <main class="layout">
+    <section id="room" data-view="leader">
+      <div class="screen-id">S06 · party-room.html?id=1 · A</div>
+
+      <div class="card small view-switch" style="margin-bottom:12px;background:var(--accent-soft);border-color:var(--line)">
+        <div class="muted" style="margin-bottom:6px">목업 전용 · 같은 파티 방을 누가 보느냐에 따라 화면이 달라져요</div>
+        <div class="row">
+          <button class="btn ghost small on" data-view-btn="leader">👑 방장으로 보기</button>
+          <button class="btn ghost small" data-view-btn="member">🙋 참여자로 보기</button>
+        </div>
+      </div>
+
+      <!-- 1. 파티 정보 (모두 같음) -->
+      <div class="card">
+        <div class="spread">
+          <h1 style="margin:0">인형의 집 같이 가실 분 (추리 좋아하는 분)</h1>
+          <span class="badge ok">RECRUITING</span>
+        </div>
+        <div class="small">저주받은 인형의 집 · 미스터리룸 홍대점 · 📅 11/20 (금) 19:00 · <span style="color:var(--warn)">⏰ 11/19 18:00 모집 마감</span></div>
+        <div class="pb-intro" style="margin-top:10px;font-size:14px;color:var(--muted);background:var(--surface2);border-left:3px solid var(--accent-soft);padding:8px 10px;border-radius:4px">
+          👑 방장 한마디 · “추리 위주로 차분하게 푸는 팀 원해요. 공포는 제가 앞장설게요! 초보도 환영합니다 🙂”
+        </div>
+      </div>
+
+      <!-- 2. 좌: 참여자 명단 + 내 역할 버튼 / 우: 채팅 -->
+      <div class="room-split">
+        <div class="card room-members">
+          <div class="spread"><b>참여자</b><span class="small muted">2 / 4</span></div>
+          <ul class="member-list">
+            <li>
+              <span>👑 <b>탈출왕</b><span class="muted small" data-only="leader"> (나)</span></span>
+            </li>
+            <li>
+              <span>힌트없이<span class="muted small" data-only="member"> (나)</span></span>
+              <span data-only="leader"><button class="btn danger small kick">강퇴</button></span>
+            </li>
+            <li class="empty">빈자리</li>
+            <li class="empty">빈자리</li>
+          </ul>
+          <div class="member-actions">
+            <span data-only="leader"><button class="btn gray small">모집 마감</button></span>
+            <span data-only="leader"><button class="btn danger small">파티 삭제</button></span>
+            <span data-only="member"><button class="btn gray small">나가기</button></span>
+          </div>
+          <p class="muted" data-only="leader" style="margin:6px 0 0;font-size:12px">방장은 나가기 대신 삭제·강퇴</p>
+          <p class="muted" data-only="member" style="margin:6px 0 0;font-size:12px">나가기 = 파티·채팅방에서 함께 빠짐</p>
+        </div>
+
+        <div class="card room-chat">
+          <div class="spread"><b>파티 채팅</b><span class="small muted">3초마다 새 메시지</span></div>
+          <div class="chat">
+            <div class="msg join"><div class="who">탈출왕 님이 파티를 만들었어요 · 09:00</div></div>
+            <div class="msg join"><div class="who">힌트없이 님이 들어왔어요 · 09:05</div></div>
+            <div class="msg"><div class="who">힌트없이 · 09:05</div>저 갈게요. 공포는 좀 약한데 괜찮겠죠?</div>
+            <div class="msg mine-leader"><div class="who">탈출왕 · 09:06</div>무서운 건 제가 앞장설게요 ㅋㅋ 두 명만 더 오면 예약할게요</div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <input placeholder="메시지 입력" style="flex:1">
+            <button class="btn">보내기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="js/common.js"></script>
+  <script>
+    // 목업 전용: 보기 전환 버튼
+    (function () {
+      const room = document.getElementById("room");
+      const btns = document.querySelectorAll("[data-view-btn]");
+      btns.forEach(function (b) {
+        b.addEventListener("click", function () {
+          room.dataset.view = b.dataset.viewBtn;
+          btns.forEach(function (x) { x.classList.toggle("on", x === b); });
+          // 내 메시지 말풍선 위치: 방장 보기면 탈출왕 글이 오른쪽, 참여자 보기면 힌트없이 글이 오른쪽
+          document.querySelectorAll(".mine-leader").forEach(function (m) { m.classList.toggle("mine", room.dataset.view === "leader"); });
+          document.querySelectorAll(".chat .msg:not(.join):not(.mine-leader)").forEach(function (m) { m.classList.toggle("mine", room.dataset.view === "member"); });
+        });
+      });
+      const start = new URLSearchParams(location.search).get("view");
+      const first = document.querySelector('[data-view-btn="' + (start === "member" ? "member" : "leader") + '"]');
+      first.click();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>시간표 관리 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+  <style>
+    .week-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .week-col h2 { margin: 0; display: flex; align-items: baseline; gap: 8px; }
+    .week-col h2 small { font-size: 13px; color: var(--muted); font-weight: 400; }
+    .days { display: flex; gap: 4px; margin: 8px 0 12px; }
+    .days span { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; background: var(--accent-soft); color: var(--accent); }
+    .week-col.weekend .days span { background: var(--warn-soft); color: var(--warn); }
+    .times { list-style: none; margin: 0; padding: 0; min-height: 40px; }
+    .times li { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 6px; background: var(--surface2); }
+    .times li .t { font-weight: 700; font-size: 15px; }
+    .times li .end { color: var(--muted); font-size: 13px; margin-left: 6px; }
+    .times li button { border: 0; background: none; color: var(--bad); cursor: pointer; font-size: 16px; padding: 0 4px; }
+    .times .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+    .add-row { display: flex; gap: 6px; margin-top: 8px; }
+    .add-row input { width: auto; flex: 1; }
+    .warn-line { color: var(--bad); font-size: 13px; min-height: 18px; margin-top: 4px; }
+    .save-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  </style>
+</head>
+<body data-as="owner">
+  <main class="layout">
+    <section>
+      <div class="screen-id">S14 · owner-slots.html?themeId=1 · C</div>
+      <h1>시간표 관리 · 저주받은 인형의 집</h1>
+      <p class="muted" style="margin-top:-6px">날짜를 하나하나 넣지 않아요. <b>주중</b>과 <b>주말</b>에 시작하는 시간만 정해 두면 매주 같은 시간표로 손님에게 보여요. 제한 시간 70분 기준으로 끝나는 시간이 자동으로 계산돼요.</p>
+
+      <div class="week-grid">
+        <div class="card week-col" data-kind="weekday">
+          <h2>주중 <small>월 ~ 금</small></h2>
+          <div class="days"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span></div>
+          <ul class="times"></ul>
+          <div class="add-row">
+            <input type="time" value="21:00">
+            <button class="btn small add">+ 추가</button>
+          </div>
+          <div class="warn-line"></div>
+          <button class="btn ghost small copy" data-to="weekend">주말에도 똑같이 →</button>
+        </div>
+
+        <div class="card week-col weekend" data-kind="weekend">
+          <h2>주말 <small>토 · 일</small></h2>
+          <div class="days"><span>토</span><span>일</span></div>
+          <ul class="times"></ul>
+          <div class="add-row">
+            <input type="time" value="22:00">
+            <button class="btn small add">+ 추가</button>
+          </div>
+          <div class="warn-line"></div>
+          <button class="btn ghost small copy" data-to="weekday">← 주중에도 똑같이</button>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <span class="muted" id="summary"></span>
+        <div class="row">
+          <a class="btn gray" href="owner.html">취소</a>
+          <button class="btn">시간표 저장</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="js/common.js"></script>
+  <script>
+    // 목업 전용: 주중/주말 시작 시간 편집
+    (function () {
+      const PLAY_MIN = 70; // THEME.play_minutes
+      const data = {
+        weekday: ["13:00", "15:00", "17:30", "19:00", "20:30"],
+        weekend: ["10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00", "20:30"],
+      };
+
+      function toMin(t) { const p = t.split(":"); return +p[0] * 60 + +p[1]; }
+      function toTime(m) { m = m % (24 * 60); return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); }
+
+      function render() {
+        document.querySelectorAll(".week-col").forEach(function (col) {
+          const kind = col.dataset.kind;
+          const ul = col.querySelector(".times");
+          ul.textContent = "";
+          data[kind].sort(function (a, b) { return toMin(a) - toMin(b); });
+          if (!data[kind].length) {
+            const e = document.createElement("li");
+            e.className = "empty";
+            e.style.border = "0";
+            e.textContent = "아직 시간이 없어요";
+            ul.append(e);
+          }
+          data[kind].forEach(function (t, i) {
+            const li = document.createElement("li");
+            const left = document.createElement("span");
+            const tt = document.createElement("span");
+            tt.className = "t";
+            tt.textContent = t;
+            const end = document.createElement("span");
+            end.className = "end";
+            end.textContent = "→ " + toTime(toMin(t) + PLAY_MIN) + " 종료";
+            left.append(tt, end);
+            const del = document.createElement("button");
+            del.type = "button";
+            del.title = "삭제";
+            del.textContent = "✕";
+            del.addEventListener("click", function () { data[kind].splice(i, 1); render(); });
+            li.append(left, del);
+            ul.append(li);
+          });
+        });
+        document.getElementById("summary").textContent =
+          "주중 하루 " + data.weekday.length + "회 · 주말 하루 " + data.weekend.length + "회 → 일주일 " +
+          (data.weekday.length * 5 + data.weekend.length * 2) + "회";
+      }
+
+      document.querySelectorAll(".week-col").forEach(function (col) {
+        const kind = col.dataset.kind;
+        const input = col.querySelector("input[type=time]");
+        const warn = col.querySelector(".warn-line");
+        col.querySelector(".add").addEventListener("click", function () {
+          const t = input.value;
+          warn.textContent = "";
+          if (!t) return;
+          if (data[kind].indexOf(t) !== -1) { warn.textContent = t + "는 이미 있어요"; return; }
+          // 앞뒤 회차와 플레이 시간이 겹치는지
+          const clash = data[kind].find(function (x) { return Math.abs(toMin(x) - toMin(t)) < PLAY_MIN; });
+          if (clash) { warn.textContent = clash + " 회차와 겹쳐요 (플레이 " + PLAY_MIN + "분)"; return; }
+          data[kind].push(t);
+          render();
+        });
+        col.querySelector(".copy").addEventListener("click", function () {
+          data[this.dataset.to] = data[kind].slice();
+          render();
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

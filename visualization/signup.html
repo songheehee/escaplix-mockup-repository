@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>회원가입 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+  <style>
+    .choose { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); max-width: 620px; }
+    .choose a { display: flex; flex-direction: column; gap: 6px; padding: 26px 22px; text-decoration: none; color: inherit; transition: border-color .15s, box-shadow .15s, transform .15s; }
+    .choose a:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(107, 63, 160, .15); transform: translateY(-2px); }
+    .choose .ico { font-size: 40px; }
+    .choose .ttl { font-size: 19px; font-weight: 800; }
+    .choose .desc { font-size: 14px; color: var(--muted); }
+    .choose .go { margin-top: 8px; font-weight: 700; color: var(--accent); }
+  </style>
+</head>
+<body data-as="guest">
+  <main class="layout">
+    <section class="narrow auth" style="--w:620px">
+      <div class="screen-id">S03 · signup.html · A</div>
+      <h1>회원가입</h1>
+      <p class="muted" style="margin-top:-6px">어떤 회원으로 가입할지 골라 주세요</p>
+
+      <div class="choose">
+        <a class="card" href="signup-user.html">
+          <div class="ico">🔑</div>
+          <div class="ttl">손님으로 가입</div>
+          <div class="desc">테마를 찾고, 찜하고, 파티를 만들어 같이 갈 사람을 구해요.</div>
+          <div class="go">손님 가입 →</div>
+        </a>
+        <a class="card" href="signup-owner.html">
+          <div class="ico">🏪</div>
+          <div class="ttl">사장으로 가입</div>
+          <div class="desc">내 매장과 테마를 등록하고 시간표를 관리해요. 관리자 승인 후 공개돼요.</div>
+          <div class="go">사장 가입 →</div>
+        </a>
+      </div>
+
+      <p class="small" style="margin-top:18px">이미 회원이신가요? <a href="login.html">로그인</a></p>
+    </section>
+  </main>
+  <script src="js/common.js"></script>
+</body>
+</html>

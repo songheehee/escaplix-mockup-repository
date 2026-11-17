@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>파티 목록 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="user">
+  <main class="layout">
+    <section>
+      <div class="screen-id">S04 · party-list.html · A</div>
+      <div class="spread">
+        <h1>같이 갈 사람 구해요</h1>
+        <a class="btn" href="party-form.html">+ 파티 만들기</a>
+      </div>
+      <div class="row small" style="margin-bottom:12px;position:relative">
+        <div class="party-search">
+          <input type="search" id="theme-q" placeholder="🔍 테마 이름 검색 (예: 인형)" aria-label="테마 이름 검색">
+        </div>
+        <button class="btn gray small" id="theme-btn" aria-expanded="false">🎭 장르: 전체 ▾</button>
+        <span class="muted" id="party-count"></span>
+
+        <div class="card theme-panel" id="theme-panel" hidden>
+          <div class="spread small" style="margin-bottom:8px"><b>보고 싶은 장르 (여러 개 선택)</b><button class="btn ghost small" id="theme-reset">선택 해제</button></div>
+          <div class="theme-chips" id="theme-chips"></div>
+          <p class="muted" style="margin:8px 0 0">아무것도 고르지 않으면 모든 장르 · 여러 개 고르면 그중 하나라도 해당하는 파티</p>
+        </div>
+      </div>
+
+      <p class="muted" id="party-empty" hidden>조건에 맞는 모집 중인 파티가 없어요. <a href="party-form.html">직접 파티를 만들어 보세요 →</a></p>
+      <div class="party-grid">
+        <a class="card party-block" data-theme="1" data-genres="공포,추리" href="#join-modal" data-play="202611201900">
+          <div class="pb-top">
+            <div class="pb-theme">🚪 저주받은 인형의 집</div>
+            <div class="pb-genres"><span class="pb-genre">공포</span><span class="pb-genre">추리</span></div>
+            <div class="pb-date">11/20 (금)</div>
+            <div class="pb-time">19:00 플레이 · 미스터리룸 홍대점</div>
+          </div>
+          <div class="pb-body">
+            <div><span class="badge ok">RECRUITING</span></div>
+            <div class="pb-title">인형의 집 같이 가실 분 (추리 좋아하는 분)</div>
+            <div class="pb-intro">“추리 위주로 차분하게 푸는 팀 원해요. 공포는 제가 앞장설게요! 초보도 환영합니다 🙂”</div>
+            <div class="spread small">
+              <span class="seats"><i class="on"></i><i class="on"></i><i></i><i></i></span>
+              <b>2 / 4명</b>
+            </div>
+            <div class="pb-foot small">
+              <div style="color:var(--warn)">⏰ 11/19 (목) 18:00 모집 마감</div>
+              <div class="muted">👑 방장 추리덕후</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="card party-block" data-theme="1" data-genres="공포,추리" href="#join-modal" data-play="202611211300">
+          <div class="pb-top">
+            <div class="pb-theme">🚪 저주받은 인형의 집</div>
+            <div class="pb-genres"><span class="pb-genre">공포</span><span class="pb-genre">추리</span></div>
+            <div class="pb-date">11/21 (토)</div>
+            <div class="pb-time">13:00 플레이 · 미스터리룸 홍대점</div>
+          </div>
+          <div class="pb-body">
+            <div><span class="badge ok">RECRUITING</span></div>
+            <div class="pb-title">인형의 집 주말 낮팟, 공포 쫄보 환영</div>
+            <div class="pb-intro">“무서운 거 진짜 못 봐요ㅠㅠ 같이 소리 질러 주실 분 구해요. 낮이라 덜 무서울 듯!”</div>
+            <div class="spread small">
+              <span class="seats"><i class="on"></i><i></i><i></i></span>
+              <b>1 / 3명</b>
+            </div>
+            <div class="pb-foot small">
+              <div style="color:var(--warn)">⏰ 11/20 (금) 22:00 모집 마감</div>
+              <div class="muted">👑 방장 쫄보</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="card party-block" data-theme="2" data-genres="감성" href="#join-modal" data-play="202611202030">
+          <div class="pb-top p4">
+            <div class="pb-theme">🚪 할머니의 다락방</div>
+            <div class="pb-genres"><span class="pb-genre">감성</span></div>
+            <div class="pb-date">11/20 (금)</div>
+            <div class="pb-time">20:30 플레이 · 미스터리룸 홍대점</div>
+          </div>
+          <div class="pb-body">
+            <div><span class="badge ok">RECRUITING</span></div>
+            <div class="pb-title">다락방 감성팟, 울 준비 된 분</div>
+            <div class="pb-intro">“스토리 좋아하시는 분이면 누구든! 끝나고 근처에서 밥도 먹어요.”</div>
+            <div class="spread small">
+              <span class="seats"><i class="on"></i><i></i><i></i></span>
+              <b>1 / 3명</b>
+            </div>
+            <div class="pb-foot small">
+              <div style="color:var(--warn)">⏰ 11/20 (금) 12:00 모집 마감</div>
+              <div class="muted">👑 방장 감성충전</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="card party-block" data-theme="5" data-genres="잠입,추리" href="#join-modal" data-play="202611211100">
+          <div class="pb-top p2">
+            <div class="pb-theme">🚪 금고털이</div>
+            <div class="pb-genres"><span class="pb-genre">잠입</span><span class="pb-genre">추리</span></div>
+            <div class="pb-date">11/21 (토)</div>
+            <div class="pb-time">11:00 플레이 · 미스터리룸 강남점</div>
+          </div>
+          <div class="pb-body">
+            <div><span class="badge ok">RECRUITING</span></div>
+            <div class="pb-title">금고털이 토요일 오전, 잠입 좋아하시는 분</div>
+            <div class="pb-intro">“조용히 머리 쓰는 거 좋아해요. 방탈출 10회 이상이면 좋겠어요.”</div>
+            <div class="spread small">
+              <span class="seats"><i class="on"></i><i class="on"></i><i></i><i></i></span>
+              <b>2 / 4명</b>
+            </div>
+            <div class="pb-foot small">
+              <div style="color:var(--warn)">⏰ 11/20 (금) 20:00 모집 마감</div>
+              <div class="muted">👑 방장 금고장인</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="card party-block" data-theme="6" data-genres="공포" href="#join-modal" data-play="202611221500">
+          <div class="pb-top p3">
+            <div class="pb-theme">🚪 폐병원 304호</div>
+            <div class="pb-genres"><span class="pb-genre">공포</span></div>
+            <div class="pb-date">11/22 (일)</div>
+            <div class="pb-time">15:00 플레이 · 열쇠공방 건대점</div>
+          </div>
+          <div class="pb-body">
+            <div><span class="badge ok">RECRUITING</span></div>
+            <div class="pb-title">폐병원 공포 극복하실 분 ㅠㅠ 겁쟁이 환영</div>
+            <div class="pb-intro">“저 진짜 겁 많아요. 같이 소리 지르면서 탈출해요.”</div>
+            <div class="spread small">
+              <span class="seats"><i class="on"></i><i></i><i></i><i></i></span>
+              <b>1 / 4명</b>
+            </div>
+            <div class="pb-foot small">
+              <div style="color:var(--warn)">⏰ 11/21 (토) 22:00 모집 마감</div>
+              <div class="muted">👑 방장 쮫보</div>
+            </div>
+          </div>
+        </a>
+
+
+
+      </div>
+    </section>
+
+  </main>
+  <!-- 참여 확인 팝업 -->
+  <div class="modal" id="join-modal">
+    <div class="card">
+      <div class="screen-id">S04 안의 팝업 · 참여 확인 · A</div>
+      <h2 style="margin-top:4px">이 파티에 참여하시겠습니까?</h2>
+      <div class="card small" style="background:var(--surface2)">
+        <b id="jm-title">인형의 집 같이 가실 분 (추리 좋아하는 분)</b><br>
+        <span id="jm-place">저주받은 인형의 집 · 미스터리룸 홍대점</span><br>
+        📅 <span id="jm-when">11/20 (금) 19:00</span> · 현재 <span id="jm-count">2 / 4명</span> · <span id="jm-leader">👑 방장 추리덕후</span>
+        <div class="pb-intro" id="jm-intro" style="margin-top:8px;font-size:13px;color:var(--muted)">“추리 위주로 차분하게 푸는 팀 원해요. 공포는 제가 앞장설게요! 초보도 환영합니다 🙂”</div>
+      </div>
+      <p class="muted small">"예"를 누르면 <code>A-10 POST /api/parties/{id}/join</code> → 성공하면 파티 방(채팅)으로 이동해요. 그사이 자리가 다 찼으면 409 메시지를 보여 주고 목록에 남아요.</p>
+      <div class="row" style="justify-content:flex-end">
+        <a class="btn gray" href="#">아니오</a>
+        <a class="btn" href="party-room.html?view=member">예, 참여할게요</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script>
+    // 가까운 플레이 일정 순으로 정렬 (실제 서비스에선 서버가 ORDER BY play_at)
+    (function () {
+      const grid = document.querySelector(".party-grid");
+      Array.from(grid.querySelectorAll(".party-block"))
+        .sort(function (x, y) { return x.dataset.play.localeCompare(y.dataset.play); })
+        .forEach(function (b) { grid.appendChild(b); });
+    })();
+
+    // 필터: 항상 모집 중(RECRUITING)인 파티만 + 장르(여러 개 선택, 하나라도 맞으면 보임)
+    // 메인·테마 상세에서 ?themeId=1 로 들어오면 그 테마 파티만 (화면 표시 없이)
+    (function () {
+      const GENRES = ["공포", "추리", "감성", "코믹", "어드벤처", "SF", "잠입"]; // 실제: B-7 GET /api/genres
+      const blocks = Array.from(document.querySelectorAll(".party-block"));
+      const genreBtn = document.getElementById("theme-btn");
+      const panel = document.getElementById("theme-panel");
+      const chipsBox = document.getElementById("theme-chips");
+      const count = document.getElementById("party-count");
+
+      const qs = new URLSearchParams(location.search);
+      const themeId = qs.get("themeId");
+      const picked = new Set(qs.get("genre") ? qs.get("genre").split(",") : []);
+      const qInput = document.getElementById("theme-q");
+      qInput.value = qs.get("q") || "";
+      let timer = null;
+      qInput.addEventListener("input", function () {
+        clearTimeout(timer);
+        timer = setTimeout(apply, 200); // 실제 서비스에선 타자 멈춘 뒤 API 호출 (매 글자마다 부르지 않게)
+      });
+
+      GENRES.forEach(function (g) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "theme-chip";
+        chip.dataset.id = g;
+        chip.textContent = g;
+        chip.addEventListener("click", function () {
+          picked.has(g) ? picked.delete(g) : picked.add(g);
+          apply();
+        });
+        chipsBox.appendChild(chip);
+      });
+
+      function apply() {
+        let n = 0;
+        blocks.forEach(function (b) {
+          const recruiting = b.querySelector(".badge").textContent.indexOf("RECRUITING") !== -1;
+          const genres = b.dataset.genres.split(",");
+          const genreOk = picked.size === 0 || genres.some(function (g) { return picked.has(g); });
+          const themeOk = !themeId || b.dataset.theme === themeId;
+          const q = qInput.value.trim().replace(/\s+/g, "");
+          const name = b.querySelector(".pb-theme").textContent.replace(/\s+/g, "");
+          const searchOk = !q || name.indexOf(q) !== -1;
+          const show = recruiting && genreOk && themeOk && searchOk;
+          b.hidden = !show;
+          if (show) n++;
+        });
+        chipsBox.querySelectorAll(".theme-chip").forEach(function (c) { c.classList.toggle("on", picked.has(c.dataset.id)); });
+
+        let label = "전체";
+        if (picked.size === 1) label = Array.from(picked)[0];
+        else if (picked.size > 1) label = Array.from(picked).join("·");
+        genreBtn.textContent = "🎭 장르: " + label + " ▾";
+        genreBtn.classList.toggle("gray", picked.size === 0);
+        count.textContent = "모집 중 " + n + "개";
+        document.getElementById("party-empty").hidden = n > 0;
+
+        // 주소도 선택에 맞춰 바꿔 둔다
+        const p = new URLSearchParams();
+        if (themeId) p.set("themeId", themeId);
+        if (picked.size) p.set("genre", Array.from(picked).join(","));
+        if (qInput.value.trim()) p.set("q", qInput.value.trim());
+        const url = p.toString() ? "?" + p.toString() : location.pathname;
+        try { history.replaceState(null, "", url); } catch (e) { /* file:// 로 열면 막힐 수 있음 */ }
+      }
+
+      genreBtn.addEventListener("click", function () {
+        panel.hidden = !panel.hidden;
+        genreBtn.setAttribute("aria-expanded", String(!panel.hidden));
+      });
+      document.getElementById("theme-reset").addEventListener("click", function () { picked.clear(); apply(); });
+      document.addEventListener("click", function (e) {
+        if (!panel.hidden && !panel.contains(e.target) && e.target !== genreBtn) {
+          panel.hidden = true;
+          genreBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+      apply();
+    })();
+
+    // 목업 전용: 누른 배너의 내용으로 팝업을 채운다 (textContent만 사용)
+    document.querySelectorAll('a.party-block[href="#join-modal"]').forEach(function (block) {
+      block.addEventListener("click", function () {
+        const q = function (sel) { return block.querySelector(sel).textContent; };
+        document.getElementById("jm-title").textContent = q(".pb-title");
+        document.getElementById("jm-when").textContent = q(".pb-date") + " " + q(".pb-time").split(" ")[0];
+        document.getElementById("jm-count").textContent = q(".spread b");
+        document.getElementById("jm-leader").textContent = q(".pb-foot .muted");
+        document.getElementById("jm-intro").textContent = q(".pb-intro");
+        document.getElementById("jm-place").textContent =
+          q(".pb-theme").replace("🚪 ", "") + " · " + q(".pb-time").split(" · ")[1];
+      });
+    });
+  </script>
+</body>
+</html>

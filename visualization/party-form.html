@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>파티 만들기 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="user">
+  <main class="layout">
+    <section class="narrow" style="--w:520px">
+      <div class="screen-id">S05 · party-form.html · A</div>
+      <h1>파티 만들기</h1>
+      <div class="card">
+        <label>테마</label>
+        <select><option>저주받은 인형의 집 (미스터리룸 홍대점 · 2~4명 · 70분)</option><option>금고털이 (미스터리룸 강남점 · 2~4명 · 60분)</option></select>
+
+        <label>플레이 날짜 (오늘 이후만)</label>
+        <input type="date" value="2026-11-20" min="2026-11-17">
+
+        <label>시간</label>
+        <div class="slots">
+          <span class="slot">10:00</span><span class="slot full">11:30</span>
+          <span class="slot" style="border-color:var(--accent);background:var(--accent-soft)">19:00 ✓</span>
+          <span class="slot">20:30</span>
+        </div>
+        <p class="muted" style="margin:6px 0 0">↑ 지금 설계는 날짜·시간을 직접 입력(play_at)해요. 시간표에서 고르게 하려면 PARTY에 slot_id가 필요해요.</p>
+
+        <label>모집 기한</label>
+        <input type="datetime-local" value="2026-11-19T18:00" min="2026-11-17T00:00" max="2026-11-20T19:00">
+        <p class="muted" style="margin:4px 0 0">지금부터 플레이 시작 전까지만 고를 수 있어요. 기한까지 정원이 안 차면 자동 마감돼요.</p>
+
+        <label>모집 인원 (방장 포함)</label>
+        <select><option>2명</option><option>3명</option><option selected>4명</option></select>
+        <p class="muted" style="margin:4px 0 0">테마 인원(2~4명) 범위 안에서만 고를 수 있어요</p>
+
+        <label>제목</label>
+        <input value="인형의 집 같이 가실 분 (추리 좋아하는 분)">
+
+        <label>한마디 (100자 이내)</label>
+        <textarea maxlength="100" style="min-height:64px">추리 위주로 차분하게 푸는 팀 원해요. 공포는 제가 앞장설게요! 초보도 환영합니다 🙂</textarea>
+        <div class="spread small"><span class="muted">파티 목록의 구인 배너에 그대로 보여요</span><span class="muted">46 / 100</span></div>
+
+        <div style="margin-top:16px"><a class="btn" href="party-room.html">모집 시작</a></div>
+      </div>
+    </section>
+
+  </main>
+  <script src="js/common.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>마이페이지 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="user">
+  <main class="layout">
+    <section>
+      <div class="screen-id">S18 · mypage.html · D</div>
+      <h1>탈출왕 님의 마이페이지</h1>
+      <div class="tabs">
+        <a class="on" href="mypage.html">내 기록</a>
+        <a href="wishes.html">찜 목록 (3)</a>
+        <a href="chats.html">내 채팅 (3)</a>
+        <a href="profile.html">내 정보</a>
+      </div>
+
+      <h2 style="margin-top:0">내 통계 <span class="muted">(선택 기능)</span></h2>
+      <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+        <div class="card"><div class="muted">플레이</div><div style="font-size:24px;font-weight:800">6회</div></div>
+        <div class="card"><div class="muted">탈출 성공률</div><div style="font-size:24px;font-weight:800">83%</div></div>
+        <div class="card"><div class="muted">가장 많이 한 장르</div><div style="font-size:24px;font-weight:800">추리 4</div></div>
+      </div>
+
+      <div class="spread">
+        <h2>내 기록</h2>
+        <a class="btn small" href="#" data-review>+ 후기 쓰기</a>
+      </div>
+      <table>
+        <tr><th>플레이한 날</th><th>테마</th><th>결과</th><th>남은 시간</th><th>인원</th><th>별점</th><th>한 줄</th><th></th></tr>
+        <tr><td>11/14</td><td>할머니의 다락방</td><td><span class="badge ok">성공</span> 힌트 1</td><td><b>08:12</b> <span class="muted">/ 60:00</span></td><td>2명</td><td class="stars">★★★★★</td><td>마지막에 눈물 날 뻔했어요.</td><td><a class="small" href="#" data-review="edit" data-theme="할머니의 다락방 · 미스터리룸 홍대점" data-limit="60" data-rate="5" data-hint="1" data-ppl="2" data-min="8" data-sec="12" data-text="마지막에 눈물 날 뻔했어요.">수정</a> · <a class="small">삭제</a></td></tr>
+        <tr><td>11/09</td><td>사라진 기억</td><td><span class="badge ok">성공</span> 힌트 1</td><td><b>03:47</b> <span class="muted">/ 70:00</span></td><td>3명</td><td class="stars">★★★★☆</td><td class="muted">(별점만)</td><td><a class="small" href="#" data-review="edit" data-theme="사라진 기억 · 어둠상자 홍대점" data-limit="70" data-rate="4" data-hint="1" data-ppl="3" data-min="3" data-sec="47">수정</a> · <a class="small">삭제</a></td></tr>
+        <tr><td>10/30</td><td>좀비 연구소</td><td><span class="badge bad">실패</span> 힌트 3</td><td><b>00:00</b> <span class="muted">/ 60:00</span></td><td>4명</td><td class="stars">★★★☆☆</td><td>너무 어려웠어요</td><td><a class="small" href="#" data-review="edit" data-theme="좀비 연구소 · 열쇠공방 신촌점" data-limit="60" data-rate="3" data-hint="3" data-ppl="4" data-fail="1" data-text="너무 어려웠어요">수정</a> · <a class="small">삭제</a></td></tr>
+      </table>
+
+
+    </section>
+
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/review-modal.js"></script>
+</body>
+</html>

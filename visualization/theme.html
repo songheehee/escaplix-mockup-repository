@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>테마 상세 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="user">
+  <main class="layout">
+    <section>
+      <div class="screen-id">S09 · theme.html?id=1 · B</div>
+      <div class="card">
+        <div class="row" style="align-items:flex-start">
+          <div class="poster" style="width:180px;height:220px;margin:0">저주받은 인형의 집</div>
+          <div style="flex:1;min-width:220px">
+            <h1 style="margin-top:0">저주받은 인형의 집</h1>
+            <div><span class="tag">공포</span><span class="tag">추리</span> <span class="badge ok">OPEN</span></div>
+            <p class="small">밤마다 자리를 바꾸는 인형들. 인형이 숨긴 단서를 찾아 집을 빠져나가세요.</p>
+            <div class="small">난이도 ★★★★☆ · <b>제한 시간 70분</b> · 2~4명 · 1인 25,000원 (인원 상관없이 같은 가격)</div>
+            <div class="small muted">미스터리룸 홍대점 · 서울 마포구 (예시 주소) 1층 · 02-000-0001</div>
+            <div class="row" style="margin-top:12px">
+              <a class="btn" href="https://example.com/booking/1" target="_blank" rel="noopener">예약하러 가기 ↗</a>
+              <a class="btn ghost" href="#">♡ 찜하기</a>
+              <a class="btn gray" href="party-list.html?themeId=1">이 테마 파티 보기 (2)</a>
+            </div>
+            <p class="muted" style="margin:6px 0 0">찜하기는 찜 목록에 넣기만 하고 화면은 그대로예요. 목록은 마이페이지 → 찜 목록 탭에서 봐요.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2>예약 시간표</h2>
+      <div class="card">
+        <div class="row small" style="margin-bottom:10px">
+          <a class="btn gray small">11/19 (목)</a><a class="btn small">11/20 (금)</a><a class="btn gray small">11/21 (토)</a><a class="btn gray small">11/22 (일)</a>
+          <span class="muted">· 오늘(11/17) 이전 날짜는 안 보여요</span>
+        </div>
+        <div class="slots">
+          <span class="slot">10:00</span><span class="slot full">11:30</span><span class="slot">13:00</span>
+          <span class="slot">14:30</span><span class="slot full">16:00</span><span class="slot">17:30</span><span class="slot">19:00</span><span class="slot">20:30</span>
+        </div>
+        <p class="muted" style="margin-bottom:0">회색 줄 = FULL(예약 마감). 11/20은 금요일이라 <b>주중 시간표</b>가 보여요. 실제 예약은 매장 사이트에서 해요.</p>
+      </div>
+
+      <div class="spread">
+        <h2>후기 <span class="stars">★★★★☆ 4.0</span> <span class="muted">(1개)</span></h2>
+        <a class="btn ghost small" href="#" data-review data-theme="저주받은 인형의 집 · 미스터리룸 홍대점" data-limit="70">후기 쓰기</a>
+      </div>
+      <div class="card">
+        <div class="spread"><b>힌트없이</b><span class="stars">★★★★☆</span></div>
+        <div class="small"><span class="badge ok">탈출 성공</span> 힌트 0개 · <b>12:34 남기고</b> (70:00 중) · <b>3명</b>이서 · 2026-10-19 플레이</div>
+        <p>인형 연출이 소름 돋아요. 추리도 탄탄해요.</p>
+        <div class="spread"><span></span><a class="small" href="#report-modal">🚩 신고</a></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 후기 신고 팝업 (페이지 이동 없이 이 화면 위에 뜸) -->
+  <div class="modal" id="report-modal">
+    <div class="card">
+      <div class="screen-id">S09 안의 팝업 · 후기 신고 · D</div>
+      <h2 style="margin-top:4px">이 후기를 신고할까요?</h2>
+      <div class="card small" style="background:var(--surface2)">
+        <b>힌트없이</b> · <span class="stars">★★★★☆</span><br>
+        인형 연출이 소름 돋아요. 추리도 탄탄해요.
+      </div>
+      <label>신고 사유</label>
+      <div class="small">
+        <label class="row" style="margin:4px 0;font-weight:400"><input type="radio" name="why" checked style="width:auto"> 사실과 다른 내용</label>
+        <label class="row" style="margin:4px 0;font-weight:400"><input type="radio" name="why" style="width:auto"> 욕설·비방</label>
+        <label class="row" style="margin:4px 0;font-weight:400"><input type="radio" name="why" style="width:auto"> 광고·도배</label>
+        <label class="row" style="margin:4px 0;font-weight:400"><input type="radio" name="why" style="width:auto"> 기타</label>
+      </div>
+      <textarea placeholder="자세한 내용 (선택)"></textarea>
+      <p class="muted small">D-11 POST /api/reviews/{id}/report → REPORT 한 줄 (같은 후기를 두 번 신고하면 409)</p>
+      <div class="row" style="justify-content:flex-end">
+        <a class="btn gray" href="#">취소</a>
+        <a class="btn danger" href="#">신고 접수</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/review-modal.js"></script>
+</body>
+</html>

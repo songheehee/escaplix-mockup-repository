@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>매장 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="user">
+  <main class="layout">
+    <section>
+      <div class="screen-id">S27 (신규) · stores.html · B</div>
+      <div class="spread">
+        <h1>매장</h1>
+        <a class="btn ghost small" href="map.html">🗺 지도로 보기</a>
+      </div>
+
+      <div class="row small" style="margin-bottom:12px">
+        <div class="party-search">
+          <input type="search" id="store-q" placeholder="🔍 매장 이름 검색 (예: 미스터리룸)" aria-label="매장 이름 검색">
+        </div>
+        <div class="row" id="area-chips"></div>
+        <span class="muted" id="store-count"></span>
+      </div>
+
+      <div class="store-grid" id="store-grid"></div>
+      <p class="muted" id="store-empty" hidden>조건에 맞는 매장이 없어요.</p>
+    </section>
+  </main>
+  <script src="js/common.js"></script>
+  <script src="js/stores-data.js"></script>
+  <script>
+    (function () {
+      const grid = document.getElementById("store-grid");
+      const q = document.getElementById("store-q");
+      const chipsBox = document.getElementById("area-chips");
+      let area = "전체";
+
+      ["전체", "홍대", "강남", "건대", "신촌"].forEach(function (a) {
+        const c = el("button", "theme-chip", a);
+        c.type = "button";
+        c.addEventListener("click", function () { area = a; render(); });
+        chipsBox.append(c);
+      });
+
+      function card(s) {
+        const a = el("a", "card store-card");
+        a.href = "store.html?id=" + s.id;
+
+        const top = el("div", "sc-top g-" + s.g);
+        top.append(el("div", "sc-brand", s.brand ? "브랜드 · " + s.brand : "개인 매장"));
+        top.append(el("div", "sc-name", s.name));
+        a.append(top);
+
+        const body = el("div", "sc-body");
+        body.append(el("div", null, "📍 " + s.area + " · " + s.addr));
+        body.append(el("div", "muted", "🕒 " + s.hours));
+        const genres = Array.from(new Set(s.themes.flatMap(function (t) { return t.genres; })));
+        const tags = el("div");
+        genres.forEach(function (g) { tags.append(el("span", "tag", g)); });
+        body.append(tags);
+
+        const foot = el("div", "sc-foot");
+        const r = storeRate(s);
+        foot.append(el("span", "stars", r ? "★ " + r.toFixed(1) : "후기 없음"));
+        const parties = s.themes.reduce(function (n, t) { return n + t.parties; }, 0);
+        foot.append(el("span", "muted", "테마 " + s.themes.length + "개" + (parties ? " · 파티 모집 " + parties : "")));
+        body.append(foot);
+        a.append(body);
+        return a;
+      }
+
+      function render() {
+        const kw = q.value.trim().replace(/\s+/g, "");
+        grid.textContent = "";
+        const list = STORES.filter(function (s) {
+          return (area === "전체" || s.area === area) && (!kw || s.name.replace(/\s+/g, "").indexOf(kw) !== -1);
+        });
+        list.forEach(function (s) { grid.append(card(s)); });
+        chipsBox.querySelectorAll(".theme-chip").forEach(function (c) { c.classList.toggle("on", c.textContent === area); });
+        document.getElementById("store-count").textContent = "매장 " + list.length + "곳";
+        document.getElementById("store-empty").hidden = list.length > 0;
+      }
+
+      q.addEventListener("input", render);
+      render();
+    })();
+  </script>
+</body>
+</html>

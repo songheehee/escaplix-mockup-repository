@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escaplix 페이지 흐름</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Escap<span>lix</span></a>
+    <nav><span style="color:#ccc">페이지 흐름 목업 (가짜 데이터)</span></nav>
+    <div class="who" id="theme-toggle-slot"></div>
+  </header>
+  <script>document.getElementById("theme-toggle-slot").append(window.escaplixTheme.button());</script>
+
+  <div class="flow-wrap">
+    <h1>전체 페이지 흐름 지도</h1>
+    <section class="lane">
+      <h2>① 공통 입구 <span class="badge accent">A</span></h2>
+      <div class="lane-steps">
+        <a class="step" href="main.html"><div class="sid">S01</div><div class="nm">공통 헤더</div><div class="who-owner">모든 화면 위쪽 · A</div></a>
+        <span class="arrow">·</span>
+        <a class="step" href="signup.html"><div class="sid">S03</div><div class="nm">회원가입 유형 선택</div><div class="who-owner">손님 / 사장 · A</div></a>
+        <span class="arrow">→</span>
+        <span class="lane-steps" style="flex-direction:column;gap:6px">
+          <a class="step" href="signup-user.html"><div class="sid">S03-1</div><div class="nm">손님 가입</div><div class="who-owner">+ 선호 장르 · A</div></a>
+          <a class="step" href="signup-owner.html"><div class="sid">S03-2</div><div class="nm">사장 가입</div><div class="who-owner">+ 사업자등록증 · A</div></a>
+        </span>
+        <span class="arrow">→</span>
+        <a class="step" href="login.html"><div class="sid">S02</div><div class="nm">로그인 (하나로 통합)</div><div class="who-owner">비회원 · A</div></a>
+        <span class="arrow">→</span>
+        <span class="step" style="border-style:dashed"><div class="sid">role로 자동 이동</div><div class="small">USER → 메인<br>OWNER → 사장 홈<br>ADMIN → 관리자 홈</div></span>
+      </div>
+    </section>
+
+    <section class="lane">
+      <h2>② 손님 흐름 (서비스의 중심)</h2>
+      <div class="lane-steps">
+        <a class="step" href="main.html"><div class="sid">S08</div><div class="nm">메인</div><div class="who-owner">전체 · B</div></a>
+        <span class="arrow">→</span>
+        <a class="step" href="theme.html"><div class="sid">S09</div><div class="nm">테마 상세</div><div class="who-owner">후기 신고는 팝업 · B</div></a>
+        <span class="arrow">→</span>
+        <a class="step" href="party-list.html?themeId=1"><div class="sid">S04</div><div class="nm">파티 목록</div><div class="who-owner">배너 → 참여 확인 팝업 · A</div></a>
+        <span class="arrow">→</span>
+        <a class="step" href="party-form.html"><div class="sid">S05</div><div class="nm">파티 만들기</div><div class="who-owner">+ 모집 기한·한마디 · A</div></a>
+        <span class="arrow">→</span>
+        <a class="step" href="party-room.html"><div class="sid">S06</div><div class="nm">파티 방 · 채팅</div><div class="who-owner">방장 / 참여자 화면 · A</div></a>
+        <span class="arrow">→</span>
+        <a class="step" href="mypage.html"><div class="sid">S18 · S17</div><div class="nm">마이페이지 · 후기 쓰기</div><div class="who-owner">자동 팝업 없음 · D</div></a>
+      </div>
+      <div class="lane-steps" style="margin-top:8px">
+        <span class="muted" style="align-self:center">곁가지:</span>
+        <a class="step" href="chats.html"><div class="sid">S20 신규</div><div class="nm">내 채팅</div><div class="who-owner">마이페이지 탭 · A</div></a>
+        <a class="step" href="profile.html"><div class="sid">S26 신규</div><div class="nm">내 정보</div><div class="who-owner">닉네임·비밀번호·선호 장르 · A</div></a>
+        <a class="step" href="wishes.html"><div class="sid">S10</div><div class="nm">찜 목록</div><div class="who-owner">마이페이지 탭 · B</div></a>
+        <a class="step" href="stores.html"><div class="sid">S27 신규</div><div class="nm">매장 목록</div><div class="who-owner">헤더 "매장" · B</div></a>
+        <a class="step" href="store.html?id=1"><div class="sid">S28 신규</div><div class="nm">매장 상세</div><div class="who-owner">정보 + 테마 · B</div></a>
+        <a class="step later" href="map.html"><div class="sid">S11 (선택)</div><div class="nm">매장 지도</div><div class="who-owner">전체 · B</div></a>
+        <a class="step later" href="main.html"><div class="sid">S19 (나중)</div><div class="nm">맞춤 추천</div><div class="who-owner">메인에만, 선호 장르 기준 · D</div></a>
+        <a class="step" href="https://example.com/booking/1" target="_blank" rel="noopener"><div class="sid">외부</div><div class="nm">매장 예약 사이트</div><div class="who-owner">예약은 우리 사이트 밖에서</div></a>
+      </div>
+    </section>
+
+    <section class="lane">
+      <h2>③ 사장 흐름 (매장·테마가 어디서 오는지)</h2>
+      <div class="lane-steps">
+        <a class="step" href="owner.html"><div class="sid">S12</div><div class="nm">사장 홈</div><div class="who-owner">사장 · C</div></a>
+        <span class="arrow">→</span>
+        <a class="step" href="store-form.html"><div class="sid">S21 신규</div><div class="nm">매장 등록</div><div class="who-owner">사업장번호 + 사업장등록증 · C</div></a>
+        <span class="arrow">→</span>
+        <span class="step" style="border-style:dashed"><div class="sid">상태</div><div class="nm">매장 승인 대기</div><div class="who-owner">승인돼야 테마 등록 가능</div></span>
+        <span class="arrow">→</span>
+        <a class="step" href="owner-theme.html"><div class="sid">S13</div><div class="nm">테마 등록·수정</div><div class="who-owner">사진·고정 가격 · C</div></a>
+        <span class="arrow">→</span>
+        <span class="step" style="border-style:dashed"><div class="sid">상태</div><div class="nm">PENDING</div><div class="who-owner">승인 전엔 손님에게 안 보임</div></span>
+        <span class="arrow">·</span>
+        <a class="step" href="owner-slots.html"><div class="sid">S14</div><div class="nm">시간표 관리</div><div class="who-owner">주중 / 주말 · C</div></a>
+      </div>
+    </section>
+
+    <section class="lane">
+      <h2>④ 관리자 흐름 (앞의 흐름들을 관리)</h2>
+      <div class="lane-steps" style="margin-bottom:8px">
+        <a class="step" href="admin.html" style="border-color:var(--accent)"><div class="sid">S25 신규 · 시작점</div><div class="nm">관리자 홈 (컨트롤 패널)</div><div class="who-owner">모든 관리 작업이 여기서 출발 · C</div></a>
+      </div>
+      <div class="lane-steps">
+        <a class="step" href="admin-stores.html"><div class="sid">S22 신규</div><div class="nm">매장 승인 목록</div><div class="who-owner">관리자 · C</div></a>
+        <span class="arrow">→</span>
+        <a class="step" href="admin-store-detail.html"><div class="sid">S23 신규</div><div class="nm">매장 승인 상세</div><div class="who-owner">등록증 보고 승인 · C</div></a>
+        <span class="arrow">·</span>
+        <a class="step" href="admin-themes.html"><div class="sid">S15</div><div class="nm">테마 승인 목록</div><div class="who-owner">다른 탭 · C</div></a>
+        <span class="arrow">→</span>
+        <a class="step" href="admin-theme-detail.html"><div class="sid">S24 신규</div><div class="nm">테마 승인 상세</div><div class="who-owner">사진 보고 승인 · C</div></a>
+      </div>
+      <div class="lane-steps" style="margin-top:8px">
+        <a class="step" href="admin-members.html"><div class="sid">S07</div><div class="nm">회원 관리</div><div class="who-owner">정지 없음, 사장 구분 · A</div></a>
+        <a class="step" href="store-form.html?as=admin"><div class="sid">S21 · S13 · S14</div><div class="nm">관리자 직접 등록</div><div class="who-owner">사장 화면을 같이 씀 · C</div></a>
+        <a class="step later" href="admin-reports.html"><div class="sid">S16 (범위 제외)</div><div class="nm">신고 처리</div><div class="who-owner">나중 기능 · C</div></a>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

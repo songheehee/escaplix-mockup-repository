@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>테마 등록 · Escaplix 목업</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-as="owner">
+  <main class="layout">
+    <section class="narrow" style="--w:600px">
+      <div class="screen-id">S13 · owner-theme.html · C</div>
+      <h1>테마 등록</h1>
+      <div class="card">
+        <label>매장 (승인된 매장만)</label>
+        <select><option>미스터리룸 홍대점</option></select>
+        <div class="small muted" style="margin-top:4px">사업장 123-45-67890 · ☎ 02-000-0001 <span class="tag">매장 정보에서 자동으로 채워짐</span></div>
+        <label>테마 이름</label>
+        <input value="거울 속 방">
+        <label>소개</label>
+        <textarea>거울에 비친 방과 진짜 방이 조금씩 다릅니다.</textarea>
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">
+          <div><label>난이도 (1~5)</label><input type="number" value="4"></div>
+          <div><label>제한 시간(분)</label><input type="number" value="70"></div>
+          <div><label>최소 인원</label><input type="number" value="2"></div>
+          <div><label>최대 인원</label><input type="number" value="4"></div>
+          <div><label>1인 가격 (고정)</label><input type="number" value="25000"></div>
+        </div>
+        <p class="muted" style="margin:4px 0 0">인원이 늘어도 가격은 바뀌지 않아요 (인원별 할인 규칙은 이번에 넣지 않음)</p>
+        <label>장르 (여러 개)</label>
+        <div class="row small">
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" checked style="width:auto"> 공포</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" style="width:auto"> 추리</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" style="width:auto"> 감성</label>
+          <label class="row" style="margin:0;font-weight:400"><input type="checkbox" style="width:auto"> SF</label>
+        </div>
+        <label>테마 사진</label>
+        <input type="file" accept="image/*">
+        <div class="img-ph" style="height:100px;margin-top:8px">거울속방.jpg 미리보기 · 관리자가 승인할 때 같이 봐요</div>
+        <label>예약 링크 (매장 예약 사이트)</label>
+        <input value="https://example.com/booking/21">
+        <div class="row" style="margin-top:16px">
+          <a class="btn" href="owner.html">승인 요청</a>
+          <a class="btn gray" href="owner.html">운영 종료 (수정 시)</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="js/common.js"></script>
+</body>
+</html>
