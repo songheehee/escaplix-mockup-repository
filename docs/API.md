@@ -1224,26 +1224,27 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 | escaped | boolean | ✔ | 탈출 성공. DB에는 `Y`/`N`으로 저장 |
 | hintCount | number | ✔ | 0~99 |
 | playerCount | number | ✔ | 1~20. 몇 명이서 |
-| remainSeconds | number | ✔ | 성공: 0 ~ `play_minutes × 60`. **실패(`escaped: false`)면 반드시 0** (결정 R2) |
+| remainMinutes | number | ✔ | 남은 시간 **분**. 0 이상. **실패(`escaped: false`)면 반드시 0** (결정 R2) |
+| remainSeconds | number | ✔ | 남은 시간 **초**. 0~59. **실패면 반드시 0**. 성공이면 `remainMinutes × 60 + remainSeconds` ≤ `play_minutes × 60` |
 | playedDate | date | | 오늘이거나 그 이전. **비우면 작성일** (결정 R1) |
 | content | string | | 200자 이내 |
 
 ```json
 // 요청
 { "themeId": 9, "rating": 4, "escaped": true, "hintCount": 1, "playerCount": 3,
-  "remainSeconds": 227, "playedDate": "2026-11-09", "content": "마지막 반전 대박" }
+  "remainMinutes": 3, "remainSeconds": 47, "playedDate": "2026-11-09", "content": "마지막 반전 대박" }
 // 응답 201
 { "reviewId": 15 }
 ```
 
-- 화면은 분과 초 두 칸으로 받아서 `분 × 60 + 초`로 보내요. 실패를 고르면 두 칸을 끄고 0을 보내요.
-- 실패인데 0이 아니면 400이에요. DB에도 같은 CHECK(`review_fail_ck`)가 걸려 있어요.
+- 화면은 분과 초 두 칸으로 받아서 그대로 보내요(초 칸은 0~59). 실패를 고르면 두 칸을 끄고 둘 다 0을 보내요.
+- 실패인데 분·초 중 하나라도 0이 아니면 400이에요. DB에도 같은 CHECK(`review_fail_ck`)가 걸려 있어요.
 - 닉네임은 저장하지 않아요. 보여 줄 때 JOIN해요.
 - THEME 별점 집계는 **트리거**가 해요.
 
 | 오류 | 메시지 예 |
 | --- | --- |
-| 400 | `남은 시간은 제한 시간(70분)보다 길 수 없습니다.` / `탈출에 실패했다면 남은 시간은 0이어야 합니다.` / `별점은 1~5점입니다.` |
+| 400 | `남은 시간은 제한 시간(70분)보다 길 수 없습니다.` / `탈출에 실패했다면 남은 시간은 0이어야 합니다.` / `초는 0~59입니다.` / `별점은 1~5점입니다.` |
 | 404 | 없는 테마 |
 | 409 | `이미 이 테마에 후기를 남겼습니다. 내 기록에서 수정해 주세요.` |
 
@@ -1275,7 +1276,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
   "avgRating": 4.0, "reviewCount": 1, "playMinutes": 70,
   "reviews": [
     { "reviewId": 3, "nickname": "힌트없이", "rating": 4, "escaped": true, "hintCount": 0,
-      "playerCount": 3, "remainSeconds": 754, "playedDate": "2026-10-19",
+      "playerCount": 3, "remainMinutes": 12, "remainSeconds": 34, "playedDate": "2026-10-19",
       "content": "인형 연출이 소름 돋아요.", "createdAt": "2026-10-19T22:00:00",
       "mine": false, "reportedByMe": false }
   ]
@@ -1283,7 +1284,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 ```
 
 - **VISIBLE 후기만** 최신순으로 보내요.
-- 화면은 `remainSeconds`를 `12:34 남기고 (70:00 중)`처럼 바꿔 보여 줘요.
+- 화면은 `remainMinutes`·`remainSeconds`를 `12:34 남기고 (70:00 중)`처럼 보여 줘요. 초는 두 자리로 채워요.
 - `mine`이 true면 신고 버튼 대신 수정 버튼을 보여 줘요.
 - `reportedByMe`가 true면 신고 버튼을 끄고 "신고함"으로 보여 줘요.
 
@@ -1294,7 +1295,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 ```json
 [
   { "reviewId": 15, "themeId": 9, "themeTitle": "사라진 기억", "storeName": "어둠상자 홍대점", "playMinutes": 70,
-    "rating": 4, "escaped": true, "hintCount": 1, "playerCount": 3, "remainSeconds": 227,
+    "rating": 4, "escaped": true, "hintCount": 1, "playerCount": 3, "remainMinutes": 3, "remainSeconds": 47,
     "playedDate": "2026-11-09", "content": null, "status": "VISIBLE" }
 ]
 ```
@@ -1491,7 +1492,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 | C-12, C-13 | 신고 목록·처리 | 🗑️ 나중 | 이번 범위 제외 |
 | C-14 | 브랜드 목록 | 🗑️ | 브랜드 정보 받지 않음 |
 | C-15 | 브랜드 등록 (본사) | 🗑️ | 본사 계정·브랜드 없음 |
-| D-1 | 후기 작성 | D-1 | playerCount, remainSeconds(실패면 0), escaped boolean |
+| D-1 | 후기 작성 | D-1 | playerCount, remainMinutes·remainSeconds(실패면 둘 다 0), escaped boolean |
 | D-2, D-3 | 수정·삭제 | D-2, D-3 | |
 | D-4 | 테마 후기 | D-4 | mine, reportedByMe, 새 필드 |
 | D-5 | 내 기록 | D-5 | |

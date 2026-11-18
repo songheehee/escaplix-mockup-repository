@@ -172,7 +172,7 @@ CREATE TABLE wishlist (
     CONSTRAINT wishlist_uk        UNIQUE (member_id, theme_id)
 );
 
--- 10. 후기 (남은 시간은 초 단위, 실패면 0. 상한 play_minutes*60 은 서버 검사)
+-- 10. 후기 (남은 시간은 분·초 두 칸, 실패면 둘 다 0. 상한 분*60+초 <= play_minutes*60 은 서버 검사)
 CREATE TABLE review (
     review_id       NUMBER        NOT NULL,
     member_id       NUMBER        NOT NULL,
@@ -181,7 +181,8 @@ CREATE TABLE review (
     escaped         CHAR(1)       NOT NULL,                  -- Y / N
     hint_count      NUMBER(2)     DEFAULT 0 NOT NULL,
     player_count    NUMBER(2)     NOT NULL,                  -- 몇 명이서
-    remain_seconds  NUMBER(5)     DEFAULT 0 NOT NULL,        -- 3분 47초 = 227
+    remain_minutes  NUMBER(3)     DEFAULT 0 NOT NULL,        -- 남은 시간 분 (3분 47초면 3)
+    remain_seconds  NUMBER(2)     DEFAULT 0 NOT NULL,        -- 남은 시간 초 0~59 (3분 47초면 47)
     played_date     DATE          DEFAULT TRUNC(SYSDATE) NOT NULL,  -- 비우면 작성일
     content         VARCHAR2(600),
     status          VARCHAR2(10)  DEFAULT 'VISIBLE' NOT NULL,
@@ -194,8 +195,9 @@ CREATE TABLE review (
     CONSTRAINT review_escaped_ck CHECK (escaped IN ('Y', 'N')),
     CONSTRAINT review_hint_ck    CHECK (hint_count >= 0),
     CONSTRAINT review_player_ck  CHECK (player_count >= 1),
-    CONSTRAINT review_remain_ck  CHECK (remain_seconds >= 0),
-    CONSTRAINT review_fail_ck    CHECK (escaped = 'Y' OR remain_seconds = 0),
+    CONSTRAINT review_min_ck     CHECK (remain_minutes >= 0),
+    CONSTRAINT review_sec_ck     CHECK (remain_seconds BETWEEN 0 AND 59),
+    CONSTRAINT review_fail_ck    CHECK (escaped = 'Y' OR (remain_minutes = 0 AND remain_seconds = 0)),
     CONSTRAINT review_status_ck  CHECK (status IN ('VISIBLE', 'HIDDEN'))
 );
 

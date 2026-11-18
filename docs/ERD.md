@@ -26,7 +26,7 @@
 | THEME_GENRE | C | 그대로 | |
 | TIME_SLOT | C | ✏️ 날짜별 칸 → **주중/주말 반복 시간표**(`day_type` + `start_time`)<br>🗑️ `status` | v3 피드백 4, 결정 T2 |
 | WISHLIST | B | ✏️ `member_id`가 진짜 FK | 결정 D1 |
-| REVIEW | D | 🆕 `player_count`, `remain_seconds`(초)<br>🗑️ `nickname` 복사본<br>✏️ 실패면 남은 시간 0 | 회의 v2-6, v3 피드백 5, 결정 D2·R2 |
+| REVIEW | D | 🆕 `player_count`, `remain_minutes`(분)·`remain_seconds`(초 0~59)<br>🗑️ `nickname` 복사본<br>✏️ 실패면 남은 시간 0 | 회의 v2-6, v3 피드백 5, 결정 D2·R2 |
 | REPORT | D | ✏️ 사유는 자유 글만 | 결정 R3 |
 | MEMBER_GENRE | D | ✏️ 가입 때부터 들어감 | 회의 v2-1 |
 | PARTY | A | 🆕 `intro`(방장 한마디), `deadline_at`(모집 기한)<br>✏️ `status`에 `DELETED` | 회의 v2-5, 결정 P1 |
@@ -133,6 +133,7 @@ erDiagram
         CHAR escaped "Y/N"
         NUMBER hint_count
         NUMBER player_count
+        NUMBER remain_minutes
         NUMBER remain_seconds
         DATE played_date
         VARCHAR2 content
@@ -369,7 +370,8 @@ store_reject_ck : status <> 'REJECTED' OR reject_reason IS NOT NULL      -- 반�
 | escaped | CHAR(1) | ✔ | | CHECK `Y`/`N` | 탈출 성공 | |
 | hint_count | NUMBER(2) | ✔ | 0 | CHECK ≥ 0 | | |
 | player_count | NUMBER(2) | ✔ | | CHECK ≥ 1 | 몇 명이서 | 🆕 |
-| remain_seconds | NUMBER(5) | ✔ | 0 | CHECK ≥ 0, CHECK `escaped = 'Y' OR remain_seconds = 0` | 남은 시간(초). **실패면 0** | 🆕 |
+| remain_minutes | NUMBER(3) | ✔ | 0 | CHECK ≥ 0 | 남은 시간 **분**. 3분 47초면 3. **실패면 0** | 🆕 |
+| remain_seconds | NUMBER(2) | ✔ | 0 | CHECK 0~59, CHECK `escaped = 'Y' OR (remain_minutes = 0 AND remain_seconds = 0)` | 남은 시간 **초**. 3분 47초면 47. **실패면 0** | 🆕 |
 | played_date | DATE | ✔ | TRUNC(SYSDATE) | | 플레이한 날. **비우면 작성일** | ✏️ |
 | content | VARCHAR2(600) | | | | 한 줄 후기 (한글 200자) | |
 | status | VARCHAR2(10) | ✔ | `'VISIBLE'` | CHECK `VISIBLE`/`HIDDEN` | 숨김은 신고 처리용(이번 범위 밖) | |
@@ -377,8 +379,8 @@ store_reject_ck : status <> 'REJECTED' OR reject_reason IS NOT NULL      -- 반�
 | ~~nickname~~ | | | | | 복사본 없앰 → JOIN | 🗑️ |
 | | | | | UK(member_id, theme_id) | 한 테마에 후기 하나 → 409 | |
 
-- 남은 시간 위쪽 한계(`≤ play_minutes × 60`)는 서버가 검사합니다.
-- 화면에서는 `mm:ss`로 바꿔 보여 줍니다.
+- 남은 시간은 분·초 두 칸으로 저장합니다. 위쪽 한계(`remain_minutes × 60 + remain_seconds ≤ play_minutes × 60`)는 서버가 검사합니다.
+- 화면에서는 `mm:ss`로 보여 줍니다.
 
 ### 3-10. REPORT — 후기 신고 (D)
 
@@ -586,7 +588,7 @@ v3 구조에 맞춰 새로 만들 때 아래를 꼭 넣어 주세요. 팀이 v1�
   - `poster_url`: `/uploads/posters/{장르}-NN.jpg` (더미 테마 사진)
 - **TIME_SLOT**: 테마마다 `WEEKDAY`·`WEEKEND` 시간들
 - **REVIEW**
-  - `player_count`, `remain_seconds` 포함. 실패 후기는 `remain_seconds = 0`
+  - `player_count`, `remain_minutes`, `remain_seconds` 포함. 실패 후기는 분·초 둘 다 0
   - **트리거를 먼저 만든 뒤** INSERT해야 THEME 별점이 채워집니다.
 - **PARTY**
   - 상태별로 하나 이상: 모집 중, FULL, 기한이 지난 RECRUITING 1개(스케줄러 테스트), `DELETED` 1개(목록에 안 보이는지)
@@ -612,7 +614,7 @@ v3 구조에 맞춰 새로 만들 때 아래를 꼭 넣어 주세요. 팀이 v1�
 | T1 | 공휴일 | **주말 시간표로 봄** | HOLIDAY 테이블, 날 유형 규칙 |
 | T2 | 날짜·회차별 마감 | **없음** | TIME_SLOT에 상태 없음 |
 | R1 | 후기 플레이한 날 | **선택 입력, 비우면 작성일** | `played_date` 기본값 |
-| R2 | 실패 후기의 남은 시간 | **0으로 저장** | CHECK `review_fail_ck` |
+| R2 | 실패 후기의 남은 시간 | **분·초 둘 다 0으로 저장** | CHECK `review_fail_ck` |
 | R3 | 신고 사유 | **자유 글만. 유형은 받지도 저장하지도 않음** | REPORT.`reason`, D-11 |
 | P1 | 파티 삭제 | **실제 삭제 안 함, status로 관리** | PARTY.status `DELETED` |
 | P2 | 강퇴된 사람 재참여 | **불가** | PARTY_MEMBER.status `KICKED` |
