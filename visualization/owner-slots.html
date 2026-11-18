@@ -30,7 +30,7 @@
     <section>
       <div class="screen-id">S14 · owner-slots.html?themeId=1 · C</div>
       <h1>시간표 관리 · 저주받은 인형의 집</h1>
-      <p class="muted" style="margin-top:-6px">날짜를 하나하나 넣지 않아요. <b>주중</b>과 <b>주말</b>에 시작하는 시간만 정해 두면 매주 같은 시간표로 손님에게 보여요. 제한 시간 70분 기준으로 끝나는 시간이 자동으로 계산돼요.</p>
+      <p class="muted" style="margin-top:-6px">날짜를 하나하나 넣지 않아요. <b>주중</b>과 <b>주말</b>에 시작하는 시간만 정해 두면 매주 같은 시간표로 손님에게 보여요. <b>공휴일은 평일이어도 주말 시간표</b>로 보여요. 제한 시간 70분 기준으로 끝나는 시간이 자동으로 계산돼요.</p>
 
       <div class="week-grid">
         <div class="card week-col" data-kind="weekday">
@@ -46,8 +46,8 @@
         </div>
 
         <div class="card week-col weekend" data-kind="weekend">
-          <h2>주말 <small>토 · 일</small></h2>
-          <div class="days"><span>토</span><span>일</span></div>
+          <h2>주말 <small>토 · 일 · 공휴일</small></h2>
+          <div class="days"><span>토</span><span>일</span><span style="width:auto;padding:0 8px;border-radius:99px">공휴일</span></div>
           <ul class="times"></ul>
           <div class="add-row">
             <input type="time" value="22:00">

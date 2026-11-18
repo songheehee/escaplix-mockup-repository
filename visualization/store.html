@@ -15,7 +15,7 @@
 
       <div class="store-hero" id="hero">
         <div>
-          <div class="small" id="s-brand" style="opacity:.85"></div>
+          <div class="small" id="s-area" style="opacity:.85"></div>
           <h1 id="s-name"></h1>
           <p id="s-intro" style="margin:0 0 12px;opacity:.9"></p>
           <div class="info">
@@ -25,7 +25,7 @@
             <div><b>평점</b><span id="s-rate"></span></div>
           </div>
           <div class="row" style="margin-top:14px">
-            <a class="btn" id="s-site" target="_blank" rel="noopener" style="background:#fff;color:#1f1d1a;border-color:#fff">매장 예약 사이트 ↗</a>
+            <a class="btn" id="s-site" target="_blank" rel="noopener" style="background:#fff;color:#1f1d1a;border-color:#fff">매장 웹사이트 ↗</a>
             <a class="btn" id="s-call" style="background:rgba(255,255,255,.18);border-color:transparent">☎ 전화</a>
           </div>
         </div>
@@ -46,7 +46,7 @@
 
       document.title = s.name + " · Escaplix 목업";
       $("hero").classList.add("g-" + s.g);
-      $("s-brand").textContent = s.brand ? "브랜드 · " + s.brand + " · " + s.area : "개인 매장 · " + s.area;
+      $("s-area").textContent = "📍 " + s.area;
       $("s-name").textContent = s.name;
       $("s-intro").textContent = s.intro;
       $("s-addr").textContent = s.addr;
@@ -54,7 +54,7 @@
       $("s-hours").textContent = s.hours;
       const r = storeRate(s);
       $("s-rate").textContent = r ? "★ " + r.toFixed(1) + " (테마 평균)" : "아직 후기 없음";
-      $("s-site").href = s.site;          // 실제 서비스: http(s):// 로 시작하는지 검사 후 넣기
+      $("s-site").href = s.website;       // STORE.website_url. 실제 서비스: http(s):// 로 시작하는지 검사 후 넣기
       $("s-call").href = "tel:" + s.phone.replace(/-/g, "");
       $("s-map").textContent = "🗺 지도 자리 · " + s.area;
       $("t-title").textContent = "이 매장의 테마 " + s.themes.length + "개";

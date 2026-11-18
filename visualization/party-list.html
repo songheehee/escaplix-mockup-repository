@@ -19,12 +19,12 @@
         <div class="party-search">
           <input type="search" id="theme-q" placeholder="🔍 테마 이름 검색 (예: 인형)" aria-label="테마 이름 검색">
         </div>
-        <button class="btn gray small" id="theme-btn" aria-expanded="false">🎭 장르: 전체 ▾</button>
+        <button class="btn gray small" id="genre-btn" aria-expanded="false">🎭 장르: 전체 ▾</button>
         <span class="muted" id="party-count"></span>
 
-        <div class="card theme-panel" id="theme-panel" hidden>
-          <div class="spread small" style="margin-bottom:8px"><b>보고 싶은 장르 (여러 개 선택)</b><button class="btn ghost small" id="theme-reset">선택 해제</button></div>
-          <div class="theme-chips" id="theme-chips"></div>
+        <div class="card pop-panel" id="genre-panel" hidden>
+          <div class="spread small" style="margin-bottom:8px"><b>보고 싶은 장르 (여러 개 선택)</b><button class="btn ghost small" id="genre-reset">선택 해제</button></div>
+          <div class="chips" id="genre-chips"></div>
           <p class="muted" style="margin:8px 0 0">아무것도 고르지 않으면 모든 장르 · 여러 개 고르면 그중 하나라도 해당하는 파티</p>
         </div>
       </div>
@@ -97,6 +97,28 @@
           </div>
         </a>
 
+        <div class="card party-block kicked" data-theme="6" data-genres="공포" data-play="202611231900">
+          <div class="pb-top p3">
+            <div class="pb-theme">🚪 폐병원 304호</div>
+            <div class="pb-genres"><span class="pb-genre">공포</span></div>
+            <div class="pb-date">11/23 (월)</div>
+            <div class="pb-time">19:00 플레이 · 열쇠공방 건대점</div>
+          </div>
+          <div class="pb-body">
+            <div><span class="badge ok">RECRUITING</span> <span class="badge bad">강퇴됨</span></div>
+            <div class="pb-title">평일 저녁 폐병원 빠르게 한 판</div>
+            <div class="pb-intro">“퇴근하고 바로 오실 수 있는 분!”</div>
+            <div class="spread small">
+              <span class="seats"><i class="on"></i><i class="on"></i><i></i><i></i></span>
+              <b>2 / 4명</b>
+            </div>
+            <div class="pb-foot small">
+              <div style="color:var(--bad)">강퇴된 파티라 다시 참여할 수 없어요</div>
+              <div class="muted">👑 방장 쮫보</div>
+            </div>
+          </div>
+        </div>
+
         <a class="card party-block" data-theme="5" data-genres="잠입,추리" href="#join-modal" data-play="202611211100">
           <div class="pb-top p2">
             <div class="pb-theme">🚪 금고털이</div>
@@ -156,7 +178,7 @@
         <b id="jm-title">인형의 집 같이 가실 분 (추리 좋아하는 분)</b><br>
         <span id="jm-place">저주받은 인형의 집 · 미스터리룸 홍대점</span><br>
         📅 <span id="jm-when">11/20 (금) 19:00</span> · 현재 <span id="jm-count">2 / 4명</span> · <span id="jm-leader">👑 방장 추리덕후</span>
-        <div class="pb-intro" id="jm-intro" style="margin-top:8px;font-size:13px;color:var(--muted)">“추리 위주로 차분하게 푸는 팀 원해요. 공포는 제가 앞장설게요! 초보도 환영합니다 🙂”</div>
+        <div class="pb-intro" id="jm-intro" style="margin-top:8px">“추리 위주로 차분하게 푸는 팀 원해요. 공포는 제가 앞장설게요! 초보도 환영합니다 🙂”</div>
       </div>
       <p class="muted small">"예"를 누르면 <code>A-10 POST /api/parties/{id}/join</code> → 성공하면 파티 방(채팅)으로 이동해요. 그사이 자리가 다 찼으면 409 메시지를 보여 주고 목록에 남아요.</p>
       <div class="row" style="justify-content:flex-end">
@@ -181,9 +203,9 @@
     (function () {
       const GENRES = ["공포", "추리", "감성", "코믹", "어드벤처", "SF", "잠입"]; // 실제: B-7 GET /api/genres
       const blocks = Array.from(document.querySelectorAll(".party-block"));
-      const genreBtn = document.getElementById("theme-btn");
-      const panel = document.getElementById("theme-panel");
-      const chipsBox = document.getElementById("theme-chips");
+      const genreBtn = document.getElementById("genre-btn");
+      const panel = document.getElementById("genre-panel");
+      const chipsBox = document.getElementById("genre-chips");
       const count = document.getElementById("party-count");
 
       const qs = new URLSearchParams(location.search);
@@ -200,7 +222,7 @@
       GENRES.forEach(function (g) {
         const chip = document.createElement("button");
         chip.type = "button";
-        chip.className = "theme-chip";
+        chip.className = "chip";
         chip.dataset.id = g;
         chip.textContent = g;
         chip.addEventListener("click", function () {
@@ -224,7 +246,7 @@
           b.hidden = !show;
           if (show) n++;
         });
-        chipsBox.querySelectorAll(".theme-chip").forEach(function (c) { c.classList.toggle("on", picked.has(c.dataset.id)); });
+        chipsBox.querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", picked.has(c.dataset.id)); });
 
         let label = "전체";
         if (picked.size === 1) label = Array.from(picked)[0];
@@ -247,7 +269,7 @@
         panel.hidden = !panel.hidden;
         genreBtn.setAttribute("aria-expanded", String(!panel.hidden));
       });
-      document.getElementById("theme-reset").addEventListener("click", function () { picked.clear(); apply(); });
+      document.getElementById("genre-reset").addEventListener("click", function () { picked.clear(); apply(); });
       document.addEventListener("click", function (e) {
         if (!panel.hidden && !panel.contains(e.target) && e.target !== genreBtn) {
           panel.hidden = true;

@@ -20,7 +20,7 @@
         <div class="party-search">
           <input type="search" id="store-q" placeholder="🔍 매장 이름 검색 (예: 미스터리룸)" aria-label="매장 이름 검색">
         </div>
-        <div class="row" id="area-chips"></div>
+        <div class="chips" id="area-chips"></div>
         <span class="muted" id="store-count"></span>
       </div>
 
@@ -38,7 +38,7 @@
       let area = "전체";
 
       ["전체", "홍대", "강남", "건대", "신촌"].forEach(function (a) {
-        const c = el("button", "theme-chip", a);
+        const c = el("button", "chip", a);
         c.type = "button";
         c.addEventListener("click", function () { area = a; render(); });
         chipsBox.append(c);
@@ -49,7 +49,7 @@
         a.href = "store.html?id=" + s.id;
 
         const top = el("div", "sc-top g-" + s.g);
-        top.append(el("div", "sc-brand", s.brand ? "브랜드 · " + s.brand : "개인 매장"));
+        top.append(el("div", "sc-area", "📍 " + s.area));
         top.append(el("div", "sc-name", s.name));
         a.append(top);
 
@@ -78,7 +78,7 @@
           return (area === "전체" || s.area === area) && (!kw || s.name.replace(/\s+/g, "").indexOf(kw) !== -1);
         });
         list.forEach(function (s) { grid.append(card(s)); });
-        chipsBox.querySelectorAll(".theme-chip").forEach(function (c) { c.classList.toggle("on", c.textContent === area); });
+        chipsBox.querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", c.textContent === area); });
         document.getElementById("store-count").textContent = "매장 " + list.length + "곳";
         document.getElementById("store-empty").hidden = list.length > 0;
       }

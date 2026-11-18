@@ -37,10 +37,10 @@
           <span class="muted">· 오늘(11/17) 이전 날짜는 안 보여요</span>
         </div>
         <div class="slots">
-          <span class="slot">10:00</span><span class="slot full">11:30</span><span class="slot">13:00</span>
-          <span class="slot">14:30</span><span class="slot full">16:00</span><span class="slot">17:30</span><span class="slot">19:00</span><span class="slot">20:30</span>
+          <span class="slot">10:00</span><span class="slot">11:30</span><span class="slot">13:00</span>
+          <span class="slot">14:30</span><span class="slot">16:00</span><span class="slot">17:30</span><span class="slot">19:00</span><span class="slot">20:30</span>
         </div>
-        <p class="muted" style="margin-bottom:0">회색 줄 = FULL(예약 마감). 11/20은 금요일이라 <b>주중 시간표</b>가 보여요. 실제 예약은 매장 사이트에서 해요.</p>
+        <p class="muted" style="margin-bottom:0">11/20은 금요일이라 <b>주중 시간표</b>가 보여요. 토·일·<b>공휴일</b>은 주말 시간표예요. 실제 예약은 "예약하러 가기"에서 해요.</p>
       </div>
 
       <div class="spread">
@@ -66,14 +66,8 @@
         <b>힌트없이</b> · <span class="stars">★★★★☆</span><br>
         인형 연출이 소름 돋아요. 추리도 탄탄해요.
       </div>
-      <label>신고 사유</label>
-      <div class="small">
-        <label class="row" style="margin:4px 0;font-weight:400"><input type="radio" name="why" checked style="width:auto"> 사실과 다른 내용</label>
-        <label class="row" style="margin:4px 0;font-weight:400"><input type="radio" name="why" style="width:auto"> 욕설·비방</label>
-        <label class="row" style="margin:4px 0;font-weight:400"><input type="radio" name="why" style="width:auto"> 광고·도배</label>
-        <label class="row" style="margin:4px 0;font-weight:400"><input type="radio" name="why" style="width:auto"> 기타</label>
-      </div>
-      <textarea placeholder="자세한 내용 (선택)"></textarea>
+      <label for="report-reason">신고 사유</label>
+      <textarea id="report-reason" maxlength="300" placeholder="어떤 점이 문제인지 적어 주세요 (300자 이내)"></textarea>
       <p class="muted small">D-11 POST /api/reviews/{id}/report → REPORT 한 줄 (같은 후기를 두 번 신고하면 409)</p>
       <div class="row" style="justify-content:flex-end">
         <a class="btn gray" href="#">취소</a>

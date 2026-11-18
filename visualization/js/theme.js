@@ -15,7 +15,7 @@
       document.querySelectorAll("[data-theme-toggle]").forEach(window.escaplixTheme.paint);
       return next;
     },
-    // 버튼 모양: 지금 다크면 "☀ 라이트", 라이트면 "🌙 다크" (누르면 갈 모드를 보여 줌)
+    // 버튼 모양 다시 그리기 (모드가 바뀔 때마다)
     paint: function (btn) {
       const dark = document.documentElement.dataset.theme === "dark";
       if (btn.dataset.themeToggle === "label") {
@@ -39,7 +39,7 @@
       btn.title = dark ? "라이트 모드로" : "다크 모드로";
       btn.setAttribute("aria-label", btn.title);
     },
-    // 버튼 만들기 (헤더에서 사용)
+    // 버튼 만들기: button(true) = 사이드 패널용 스위치 줄, button() = 동그란 아이콘 (흐름 지도)
     button: function (withLabel) {
       const b = document.createElement("button");
       b.type = "button";

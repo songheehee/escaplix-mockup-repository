@@ -12,12 +12,12 @@
     .stat:hover { border-color: var(--accent); }
     .stat .num { font-size: 30px; font-weight: 800; line-height: 1.1; }
     .stat .lbl { font-size: 13px; color: var(--muted); }
-    .stat.alert { border-color:#6b4a1f; background: var(--warn-soft); }
+    .stat.alert { border-color: var(--warn-line); background: var(--warn-soft); }
     .stat.alert .num { color: var(--warn); }
 
     .panel-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
     .tile { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; }
-    .tile:hover { border-color: var(--accent); box-shadow: 0 2px 10px rgba(107, 63, 160, .12); }
+    .tile:hover { border-color: var(--accent); box-shadow: 0 2px 10px var(--shadow); }
     .tile .ico { font-size: 24px; }
     .tile .ttl { font-weight: 700; }
     .tile .desc { font-size: 13px; color: var(--muted); }

@@ -40,7 +40,10 @@
         <div><label for="rv-ppl">플레이 인원</label><input id="rv-ppl" type="number" min="1" value="2"></div>
       </div>
 
-      <label>남은 시간 <span class="muted" style="font-weight:400">(탈출했을 때 타이머에 남아 있던 시간)</span></label>
+      <label for="rv-date">플레이한 날 <span class="muted" style="font-weight:400">(선택 · 비우면 오늘)</span></label>
+      <input id="rv-date" type="date" max="2026-11-18">
+
+      <label>남은 시간 <span class="muted" style="font-weight:400" id="rv-remain-note">(탈출했을 때 타이머에 남아 있던 시간)</span></label>
       <div class="remain">
         <input id="rv-min" type="number" min="0" value="0" aria-label="분"><span>분</span>
         <input id="rv-sec" type="number" min="0" max="59" value="0" aria-label="초"><span>초</span>
@@ -77,6 +80,17 @@
   }
 
   // 남은 시간 mm:ss 미리보기 + 검사
+  // 실패를 고르면 남은 시간은 0 고정 (결정 R2)
+  function escapedNow() { return modal.querySelector('input[name="rv-esc"]:checked').value === "ok"; }
+  function syncFail() {
+    const ok = escapedNow();
+    $("rv-min").disabled = $("rv-sec").disabled = !ok;
+    if (!ok) { $("rv-min").value = 0; $("rv-sec").value = 0; }
+    $("rv-remain-note").textContent = ok ? "(탈출했을 때 타이머에 남아 있던 시간)" : "(실패하면 0으로 저장돼요)";
+    updateRemain();
+  }
+  modal.querySelectorAll('input[name="rv-esc"]').forEach(function (r) { r.addEventListener("change", syncFail); });
+
   function updateRemain() {
     const mm = Math.max(0, parseInt($("rv-min").value || "0", 10));
     const ss = Math.max(0, parseInt($("rv-sec").value || "0", 10));
@@ -116,10 +130,11 @@
     $("rv-min").value = d.min || 0;
     $("rv-sec").value = d.sec || 0;
     $("rv-text").value = d.text || "";
+    $("rv-date").value = d.date || "";
     modal.querySelector('input[name="rv-esc"][value="' + (d.fail ? "fail" : "ok") + '"]').checked = true;
 
     drawStars();
-    updateRemain();
+    syncFail();
     modal.classList.add("open");
     $("rv-hint").focus();
   }

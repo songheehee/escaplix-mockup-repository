@@ -15,10 +15,12 @@
       <h1>미스터리룸 합정점 <span class="badge warn">승인 대기</span></h1>
       <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
         <div class="card small">
-          <div><b>브랜드</b> 미스터리룸</div>
           <div><b>지역</b> 합정</div>
           <div><b>주소</b> 서울 마포구 (예시 주소) 2층</div>
           <div><b>전화</b> 02-000-0009</div>
+          <div><b>웹사이트</b> https://example.com/mystery-hapjeong</div>
+          <div><b>영업시간</b> 11:00 ~ 23:00 (연중무휴)</div>
+          <div><b>소개</b> 합정역 7번 출구 2분. 스토리가 탄탄한 추리 테마 위주예요.</div>
           <div><b>사업장 등록번호</b> 222-33-44444</div>
           <div><b>사장 사업자등록번호</b> 111-22-33333</div>
           <div><b>신청한 사장</b> owner1 (미스터리룸홍대)</div>
@@ -31,11 +33,41 @@
       </div>
       <div class="row" style="margin-top:14px">
         <a class="btn" href="admin-stores.html">승인 → 공개</a>
-        <a class="btn danger" href="admin-stores.html">반려</a>
+        <a class="btn danger" href="#reject-modal">반려…</a>
       </div>
     </section>
 
   </main>
+
+  <!-- 반려 사유 팝업 (사유 필수, 사장에게 그대로 보임) -->
+  <div class="modal" id="reject-modal">
+    <div class="card">
+      <h2 style="margin-top:4px">매장 반려</h2>
+      <label for="reject-reason">반려 사유 <span class="muted" style="font-weight:400">(사장에게 그대로 보여요 · 필수)</span></label>
+      <textarea id="reject-reason" maxlength="300" placeholder="무엇을 고치면 되는지 적어 주세요"></textarea>
+      <div class="spread small"><span class="warn-line" id="reject-warn"></span><span class="muted" id="reject-count">0 / 300</span></div>
+      <div class="row" style="justify-content:flex-end;margin-top:8px">
+        <a class="btn gray" href="#">취소</a>
+        <a class="btn danger" id="reject-go" href="admin-stores.html">반려하기</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    // 목업 전용: 사유가 비어 있으면 반려 못 함
+    (function () {
+      const t = document.getElementById("reject-reason");
+      const go = document.getElementById("reject-go");
+      const warn = document.getElementById("reject-warn");
+      const cnt = document.getElementById("reject-count");
+      t.addEventListener("input", function () {
+        cnt.textContent = t.value.length + " / 300";
+        if (t.value.trim()) warn.textContent = "";
+      });
+      go.addEventListener("click", function (e) {
+        if (!t.value.trim()) { e.preventDefault(); warn.textContent = "반려 사유를 적어 주세요"; t.focus(); }
+      });
+    })();
+  </script>
   <script src="js/common.js"></script>
 </body>
 </html>
