@@ -2,7 +2,7 @@
 
 목업(`visualization/`)에서 구현하기로 정한 기능과 **11/18 팀 결정**([8번 표](#8-확정된-결정-1118))을 반영한 데이터 구조입니다.
 
-- 기준 자료: v1 SQL(14개 테이블), `노션_회의록_v2.md`, PM 미팅(11/17), 목업 v3 피드백 1~11번, 11/18 결정 18개
+- 기준 자료: v1 SQL(14개 테이블), `노션_회의록_v2.md`, PM 미팅(11/17), 목업 v3 피드백 1~11번, 11/18 결정 19개
 - DB: Oracle XE 11g, **서버 1개(모놀리식)**. `VARCHAR2` 크기는 **바이트** 단위입니다. 한글 1글자가 3바이트라서 `VARCHAR2(300)`에는 한글 100자가 들어갑니다.
 - DDL: [`docs/create_tables.sql`](create_tables.sql). 백엔드 레포 `sql/create_tables.sql`과 내용이 같습니다.
 - API 명세: [`docs/API.md`](API.md)
@@ -21,7 +21,7 @@
 | GENRE | C | 그대로 | |
 | 🆕 HOLIDAY | C | 공휴일 날짜. 공휴일은 **주말 시간표**로 봄 | 결정 T1 |
 | 🗑️ BRAND | — | 테이블 삭제 (브랜드 정보를 받지 않음) | 결정 B1 |
-| STORE | C | 🗑️ `brand_id`<br>🆕 `biz_place_no`, `biz_place_file_path`, `status`, `website_url`, `hours`, `intro`, `reject_reason`<br>✏️ `phone`·`address` 필수 | 회의 v2-4·10, 결정 B2·S2·S4 |
+| STORE | C | 🗑️ `brand_id`<br>🆕 `biz_place_no`, `biz_place_file_path`, `status`, `website_url`, `hours`, `intro`, `photo_url`, `reject_reason`<br>✏️ `phone`·`address` 필수 | 회의 v2-4·10, 결정 B2·S2·S4·S5 |
 | THEME | C | 🆕 `updated_at`, `review_count`·`rating_sum`(트리거), `reject_reason`<br>✏️ `source`에 `ADMIN` | 회의 v2-8, PM 미팅, 결정 S3·S4 |
 | THEME_GENRE | C | 그대로 | |
 | TIME_SLOT | C | ✏️ 날짜별 칸 → **주중/주말 반복 시간표**(`day_type` + `start_time`)<br>🗑️ `status` | v3 피드백 4, 결정 T2 |
@@ -78,6 +78,7 @@ erDiagram
         VARCHAR2 website_url
         VARCHAR2 hours
         VARCHAR2 intro
+        VARCHAR2 photo_url
         NUMBER lat
         NUMBER lng
         VARCHAR2 biz_place_no UK
@@ -265,6 +266,7 @@ OR (role <> 'OWNER' AND biz_no IS NULL AND biz_file_path IS NULL)
 | website_url | VARCHAR2(500) | ✔ | | | **매장 웹사이트**. 매장 상세 "매장 웹사이트 ↗" 버튼. `http(s)://`로 시작 | 🆕 |
 | hours | VARCHAR2(150) | ✔ | | | 영업시간 한 줄 `10:00 ~ 23:00 (연중무휴)` | 🆕 |
 | intro | VARCHAR2(600) | ✔ | | | 매장 소개 (한글 200자) | 🆕 |
+| photo_url | VARCHAR2(500) | | | | **매장 사진** 경로(공개 폴더) `/uploads/stores/uuid.jpg`. 없으면 NULL | 🆕 |
 | lat / lng | NUMBER(9,6) | | | | 위도·경도 (지도, 선택 기능) | |
 | biz_place_no | VARCHAR2(12) | ✔ | | UK | 사업장 등록번호. 매장마다 하나 | 🆕 |
 | biz_place_file_path | VARCHAR2(500) | | | | 사업장등록증 경로(비공개 폴더) | 🆕 |
@@ -297,7 +299,7 @@ store_reject_ck : status <> 'REJECTED' OR reject_reason IS NOT NULL      -- 반�
 | play_minutes | NUMBER(3) | ✔ | | CHECK > 0 | **제한 시간(분)** | |
 | min_people / max_people | NUMBER(2) | ✔ | | CHECK 1 ≤ min ≤ max | | |
 | price | NUMBER(7) | ✔ | | CHECK ≥ 0 | 1인 가격. 인원과 상관없이 고정 | |
-| poster_url | VARCHAR2(500) | | | | 테마 사진 경로(공개 폴더) | |
+| poster_url | VARCHAR2(500) | | | | 테마 사진 경로(공개 폴더) `/uploads/posters/uuid.jpg` | |
 | booking_url | VARCHAR2(500) | ✔ | | | **이 테마**의 예약 링크. 테마 상세 "예약하러 가기" 버튼 | |
 | source | VARCHAR2(10) | ✔ | `'OWNER'` | CHECK `OWNER`/`ADMIN`/`CRAWL` | | ✏️ ADMIN |
 | status | VARCHAR2(10) | ✔ | `'PENDING'` | CHECK `PENDING`/`OPEN`/`REJECTED`/`CLOSED` | | |
@@ -550,6 +552,7 @@ UPDATE party SET status = 'CLOSED'
 | 종류 | 올리는 곳 | 저장 폴더 | 공개 | 경로 컬럼 |
 | --- | --- | --- | --- | --- |
 | 테마 사진 | 테마 등록·수정 (C-7, C-8) | `uploads/posters/` | **공개** `/uploads/posters/**` | THEME.poster_url |
+| 매장 사진 🆕 | 매장 등록·수정 (C-3, C-4) | `uploads/stores/` | **공개** `/uploads/stores/**` | STORE.photo_url |
 | 사업자등록증 | 사장 가입 (A-2) | `private/biz/` | **비공개**, 관리자 API(A-11)로만 | MEMBER.biz_file_path |
 | 사업장등록증 | 매장 등록·수정 (C-3, C-4) | `private/biz-place/` | **비공개**, 관리자 API(C-15)로만 | STORE.biz_place_file_path |
 
@@ -557,6 +560,11 @@ UPDATE party SET status = 'CLOSED'
 - 받는 형식은 jpg·png·webp이고 5MB 이하만 받습니다. 확장자만 보지 말고 실제 파일 형식도 확인합니다.
 - 저장할 때 파일 이름은 `UUID.확장자`로 새로 짓습니다.
 - 사업자등록증·사업장등록증은 개인정보라서 **공개 폴더에 두지 않습니다.**
+- **더미 데이터 사진**은 백엔드 레포 `src/main/resources/uploads/posters/`(테마), `…/uploads/stores/`(매장)에 있고 git에 올라가 있습니다.
+  - 서버는 같은 주소(`/uploads/posters/{파일}`, `/uploads/stores/{파일}`)로 요청이 오면 실행 폴더의 `uploads/`(올린 사진)를 먼저 찾고, 없으면 더미 폴더에서 찾습니다.
+  - 실행 폴더의 `uploads/`는 실행 중에 생기는 파일이라 git에 올리지 않습니다(`.gitignore`의 `/uploads/`).
+  - 사진 출처(Pexels 작가 목록)는 `uploads/posters/credits.csv`에 있습니다.
+- 테마·매장 사진은 **백엔드에서만** 관리합니다. 프런트 레포에는 테마·매장 사진을 두지 않습니다(결정 S5).
 
 ---
 
@@ -573,7 +581,9 @@ v3 구조에 맞춰 새로 만들 때 아래를 꼭 넣어 주세요. 팀이 v1�
 - **STORE**
   - 상태별로 하나 이상: `APPROVED` 여러 개, `PENDING` 1~2개(승인 화면 테스트), `REJECTED` 1개(사유 보이는지 테스트)
   - 모두 `website_url`, `hours`, `intro`, `biz_place_no` 포함
+  - `photo_url`: `/uploads/stores/common-0N.jpg` (더미 매장 사진)
 - **THEME**: `REJECTED` 테마 1개(사유 포함)
+  - `poster_url`: `/uploads/posters/{장르}-NN.jpg` (더미 테마 사진)
 - **TIME_SLOT**: 테마마다 `WEEKDAY`·`WEEKEND` 시간들
 - **REVIEW**
   - `player_count`, `remain_seconds` 포함. 실패 후기는 `remain_seconds = 0`
@@ -608,3 +618,4 @@ v3 구조에 맞춰 새로 만들 때 아래를 꼭 넣어 주세요. 팀이 v1�
 | P2 | 강퇴된 사람 재참여 | **불가** | PARTY_MEMBER.status `KICKED` |
 | P3 | 채팅 안내 줄 | **저장해서 사용** | PARTY_MESSAGE.`msg_type` |
 | C1 | 비회원 추천 자리 | **평점 높은 OPEN 테마 5개 (B-1 sort=rate)** | API D-9 설명 |
+| S5 | 사진을 어디서 관리하나 / 매장 사진 | **테마·매장 사진 모두 백엔드에서 관리. 매장 사진도 받음(선택)** | STORE.`photo_url`, C-3·C-4 `storePhoto`, B-9·B-10·C-1·C-14 `photoUrl`, 6번 저장 규칙 |

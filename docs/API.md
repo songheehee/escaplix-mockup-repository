@@ -5,7 +5,7 @@
 - 기준 자료: 기존 README의 API 49개(v1), `노션_회의록_v2.md`, PM 미팅(11/17), 목업 v3 피드백
 - 데이터 구조: [`docs/ERD.md`](ERD.md)
 
-API는 모두 **63개**예요. 11/18 팀 결정([ERD 8번](ERD.md#8-확정된-결정-1118))까지 반영했어요.
+API는 모두 **63개**예요. 11/18 팀 결정([ERD 8번](ERD.md#8-확정된-결정-1118))까지 반영했어요. 매장 사진(결정 S5)도 들어가 있어요.
 
 | 담당 | 영역 | 개수 |
 | --- | --- | --- |
@@ -108,7 +108,12 @@ API는 모두 **63개**예요. 11/18 팀 결정([ERD 8번](ERD.md#8-확정된-�
 - 이 API들은 `multipart/form-data`로 받아요. 지금 `api.js`는 JSON만 보내니까 **파일용 요청 함수가 하나 더 필요해요**(A 공용 파일).
   - 이 함수에서는 `Content-Type`을 직접 넣지 말아야 해요. 브라우저가 boundary를 붙여서 자동으로 넣어 줘요.
 - 받을 수 있는 이미지는 jpg, png, webp이고 **5MB 이하**만 받아요. 확장자만 보지 말고 실제 파일 형식도 확인해요. 저장할 이름은 UUID로 새로 지어요([ERD 6](ERD.md#6-파일이미지-저장-규칙)).
-- 테마 사진은 공개 주소 `/uploads/posters/{파일}`로 보여 줘요.
+- 사진은 공개 주소로 보여 줘요(결정 S5).
+  - 테마 사진: `/uploads/posters/{파일}` (C-7, C-8에서 올림)
+  - 매장 사진: `/uploads/stores/{파일}` (C-3, C-4에서 올림)
+  - 응답의 `posterUrl`·`photoUrl`은 이 주소 그대로예요. 프런트는 서버 주소(`API_BASE`)를 앞에 붙여서 써요.
+  - 더미 데이터 사진은 백엔드 `src/main/resources/uploads/posters/`, `…/uploads/stores/`에 있어요. 같은 주소로 내려가요([ERD 6](ERD.md#6-파일이미지-저장-규칙)).
+  - 사진이 없으면 `null`이에요. 프런트는 장르 색 그라데이션으로 대신 그려요.
 - 사업자등록증과 사업장등록증은 **관리자 API(A-11, C-15)로만** 내려 줘요.
 
 ### 1-7. 보안 규칙 (모든 API 공통)
@@ -826,7 +831,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 [
   {
     "storeId": 1, "name": "미스터리룸 홍대점", "area": "홍대",
-    "address": "서울 마포구 …", "hours": "10:00 ~ 23:00 (연중무휴)",
+    "address": "서울 마포구 …", "hours": "10:00 ~ 23:00 (연중무휴)", "photoUrl": "/uploads/stores/7b1e.jpg",
     "genres": ["공포", "추리", "감성"], "themeCount": 3, "avgRating": 4.3, "recruitingPartyCount": 3
   }
 ]
@@ -835,6 +840,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 - **APPROVED 매장만** 보내요.
 - `genres`, `themeCount`, `avgRating`, `recruitingPartyCount`는 그 매장의 OPEN 테마로 계산해요. `avgRating`은 테마 평균 별점들의 평균이에요.
 - `keyword`는 매장 이름 일부로 찾고, 띄어쓰기는 무시해요.
+- `photoUrl`은 매장 사진이에요. 없으면 `null`이에요(결정 S5).
 - 브랜드 정보는 없어요(결정 B1).
 
 #### B-10. 매장 상세
@@ -845,7 +851,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 {
   "storeId": 1, "name": "미스터리룸 홍대점", "area": "홍대",
   "address": "서울 마포구 …", "phone": "02-000-0001", "websiteUrl": "https://example.com/mystery-hongdae",
-  "hours": "10:00 ~ 23:00 (연중무휴)", "intro": "홍대입구역 9번 출구 3분.",
+  "hours": "10:00 ~ 23:00 (연중무휴)", "intro": "홍대입구역 9번 출구 3분.", "photoUrl": "/uploads/stores/7b1e.jpg",
   "lat": 37.556, "lng": 126.923, "avgRating": 4.3,
   "themes": [
     { "themeId": 1, "title": "저주받은 인형의 집", "genres": ["공포", "추리"], "difficulty": 4, "playMinutes": 70,
@@ -860,6 +866,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 - 위쪽 **"매장 웹사이트 ↗" 버튼**은 `websiteUrl`로 새 창을 열어요(결정 B2).
 - 테마별 예약은 테마 상세의 "예약하러 가기"(`bookingUrl`)로 해요.
 - `themes`에는 OPEN 테마만 들어가요.
+- 위쪽 큰 배경은 `photoUrl`(매장 사진)이에요. 없으면 평점이 가장 높은 테마의 `posterUrl`을 써요(화면에서 고름).
 
 #### B-11. 지도용 매장 (선택 기능)
 
@@ -888,7 +895,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 [
   { "storeId": 1, "name": "미스터리룸 홍대점", "area": "홍대", "address": "서울 마포구 …",
     "phone": "02-000-0001", "websiteUrl": "https://example.com/mystery-hongdae",
-    "hours": "10:00 ~ 23:00", "intro": "…", "bizPlaceNo": "123-45-67890",
+    "hours": "10:00 ~ 23:00", "intro": "…", "photoUrl": "/uploads/stores/7b1e.jpg", "bizPlaceNo": "123-45-67890",
     "status": "APPROVED", "rejectReason": null, "themeCount": 3, "createdAt": "2026-11-10T10:00:00" },
   { "storeId": 10, "name": "미스터리룸 신촌점", "status": "REJECTED",
     "rejectReason": "사업장등록증의 상호와 매장 이름이 다릅니다. 다시 확인해 주세요.", "…": "…" }
@@ -920,6 +927,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 | lat, lng | number | | 둘 다 있거나 둘 다 없음 |
 | bizPlaceNo | text | ✔ | `^\d{3}-\d{2}-\d{5}$` |
 | bizPlaceFile | file | 사장 ✔ | 사업장등록증 이미지. 관리자가 등록할 때는 생략할 수 있어요 |
+| storePhoto | file | | **매장 사진** (공개). `/uploads/stores/`에 저장하고 STORE.`photo_url`에 경로를 넣어요 (결정 S5) |
 
 ```json
 // 응답 201
@@ -942,7 +950,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 
 `PUT /api/owner/stores/{storeId}` · OWNER\*(내 매장) · 200
 
-- 칸은 C-3과 같아요. `bizPlaceFile`을 비우면 기존 파일을 그대로 써요.
+- 칸은 C-3과 같아요. `bizPlaceFile`이나 `storePhoto`를 비우면 기존 파일을 그대로 써요.
 - **사장이 수정하면 어떤 칸을 고쳤든 `status = PENDING`** 이 돼요(결정 S1). 이미 `APPROVED`였어도 마찬가지예요.
   - 이때 `reject_reason`은 비워요.
   - ⚠️ 매장이 다시 승인될 때까지 **그 매장의 테마도 손님 화면에서 모두 숨겨져요.** 손님 화면은 매장이 APPROVED인 테마만 보여 주기 때문이에요. 화면은 저장 전에 "수정하면 다시 승인을 받을 때까지 매장과 테마가 손님에게 보이지 않아요"라고 확인을 받아요.
@@ -1121,7 +1129,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 {
   "storeId": 9, "name": "미스터리룸 합정점", "area": "합정",
   "address": "서울 마포구 …", "phone": "02-000-0009", "websiteUrl": "https://example.com/mystery-hapjeong",
-  "hours": "11:00 ~ 23:00", "intro": "합정역 7번 출구 2분.",
+  "hours": "11:00 ~ 23:00", "intro": "합정역 7번 출구 2분.", "photoUrl": "/uploads/stores/9a2c.jpg",
   "bizPlaceNo": "222-33-44444", "hasBizPlaceFile": true,
   "owner": { "memberId": 1, "loginId": "owner1", "nickname": "미스터리룸홍대", "bizNo": "111-22-33333" },
   "status": "PENDING", "rejectReason": null, "createdAt": "2026-11-17T10:00:00"
@@ -1136,6 +1144,7 @@ B-7은 여러 곳에서 써요: 가입(손님), 내 정보 선호 장르, 테마
 | 👤 사장 사업자등록증 | A-11 (`owner.memberId`) |
 
 - 관리자는 두 번호와 상호·주소를 대조해요.
+- 매장 사진(`photoUrl`)도 함께 보고, 손님에게 보여도 되는 사진인지 확인해요.
 
 #### C-15. 사업장등록증 이미지
 

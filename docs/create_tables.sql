@@ -88,6 +88,7 @@ CREATE TABLE store (
     website_url          VARCHAR2(500)  NOT NULL,             -- 매장 웹사이트. http(s):// 로 시작 (서버 검사)
     hours                VARCHAR2(150)  NOT NULL,             -- 영업시간 한 줄 "10:00 ~ 23:00 (연중무휴)"
     intro                VARCHAR2(600)  NOT NULL,             -- 매장 소개 한글 200자
+    photo_url            VARCHAR2(500),                       -- 매장 사진 공개 주소 "/uploads/stores/uuid.jpg". 없으면 NULL
     lat                  NUMBER(9,6),                         -- 지도 (선택 기능)
     lng                  NUMBER(9,6),
     biz_place_no         VARCHAR2(12)   NOT NULL,             -- 사업장 등록번호
