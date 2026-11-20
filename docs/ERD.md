@@ -339,7 +339,7 @@ store_approved_ck : status <> 'APPROVED' OR approved_at IS NOT NULL        -- �
 | difficulty | NUMBER(1) | ✔ | | CHECK 1~5 | | |
 | play_minutes | NUMBER(3) | ✔ | | CHECK > 0 | **제한 시간(분)** | |
 | min_people / max_people | NUMBER(2) | ✔ | | CHECK 1 ≤ min ≤ max | | |
-| price | NUMBER(7) | ✔ | | CHECK ≥ 0 | 1인 가격. 인원과 상관없이 고정 | |
+| price | NUMBER(7) | ✔ | | CHECK ≥ 0 | 1인 기준 가격(대표 가격). 인원별로 다른 가격은 저장하지 않음. 정확한 가격은 매장 예약 페이지(`booking_url`)에서 확인 | |
 | poster_url | VARCHAR2(500) | | | | 테마 사진 경로(공개 폴더) `/uploads/posters/uuid.jpg` | |
 | booking_url | VARCHAR2(500) | ✔ | | | **이 테마**의 예약 링크. 테마 상세 "예약하러 가기" 버튼 | |
 | source | VARCHAR2(10) | ✔ | `'OWNER'` | CHECK `OWNER`/`ADMIN`/`CRAWL` | | ✏️ ADMIN |

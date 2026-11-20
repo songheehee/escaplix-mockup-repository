@@ -1025,7 +1025,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 | difficulty | number | ✔ | 1~5 |
 | playMinutes | number | ✔ | 1~300 (제한 시간) |
 | minPeople, maxPeople | number | ✔ | 1 ≤ min ≤ max ≤ 20 |
-| price | number | ✔ | 0 이상, 1인 고정 가격 |
+| price | number | ✔ | 0 이상, 1인 기준 가격 (인원별 가격은 받지 않음) |
 | bookingUrl | text | ✔ | `http://` 또는 `https://`로 시작, 500자 이내 |
 | genreIds | number[] | ✔ | 1개 이상. 폼에서는 `genreIds=1&genreIds=2`처럼 같은 이름 여러 번 |
 | poster | file | | 테마 사진 (공개) |
