@@ -2,9 +2,9 @@
 
 목업(`visualization/`)에서 구현하기로 정한 기능과 **11/18 팀 결정**([8번 표](#8-확정된-결정-1118))을 반영한 데이터 구조입니다.
 
-- 기준 자료: v1 SQL(14개 테이블), `노션_회의록_v2.md`, PM 미팅(11/17), 목업 v3 피드백 1~11번, 11/18 결정 19개
+- 기준 자료: v1 SQL(14개 테이블), `노션_회의록_v2.md`, PM 미팅(11/17), 목업 v3 피드백 1~11번, 11/18 결정 21개
 - DB: Oracle XE 11g, **서버 1개(모놀리식)**. `VARCHAR2` 크기는 **바이트** 단위입니다. 한글 1글자가 3바이트라서 `VARCHAR2(300)`에는 한글 100자가 들어갑니다.
-- DDL: [`docs/create_tables.sql`](create_tables.sql). 백엔드 레포 `sql/create_tables.sql`과 내용이 같습니다.
+- DDL: 백엔드 레포 `src/main/resources/sql/create_tables.sql` (한 곳에서만 관리합니다. 더미 데이터는 같은 폴더의 `insert_data.sql`)
 - API 명세: [`docs/API.md`](API.md)
 
 > 표시: 🆕 새로 생김 · ✏️ 바뀜 · 🗑️ 없앰
@@ -13,20 +13,22 @@
 
 ## 1. 한눈에 보는 변경 (v1 → v3)
 
-테이블은 **14개**입니다. BRAND를 없애고 HOLIDAY를 새로 만들었습니다.
+테이블은 **16개**입니다. BRAND를 없애고 HOLIDAY, REGION·AREA(지역)를 새로 만들었습니다.
 
 | 테이블 | 담당 | 바뀐 내용 | 근거 |
 | --- | --- | --- | --- |
 | MEMBER | A | 🗑️ `owner_type`, 🗑️ `status`(정지)<br>🆕 `biz_no`(사업자등록번호), 🆕 `biz_file_path`(사업자등록증) | 회의 v2-9, v3 피드백(사장 하나로, 가입 때 등록증) |
 | GENRE | C | 그대로 | |
 | 🆕 HOLIDAY | C | 공휴일 날짜. 공휴일은 **주말 시간표**로 봄 | 결정 T1 |
+| 🆕 REGION | B | 큰 지역 코드 (서울·경기·인천…) | 결정 L1 |
+| 🆕 AREA | B | 세부 지역 코드 (홍대·강남…). STORE.`area`가 이 이름을 가리킴 | 결정 L1 |
 | 🗑️ BRAND | — | 테이블 삭제 (브랜드 정보를 받지 않음) | 결정 B1 |
-| STORE | C | 🗑️ `brand_id`<br>🆕 `biz_place_no`, `biz_place_file_path`, `status`, `website_url`, `hours`, `intro`, `photo_url`, `reject_reason`<br>✏️ `phone`·`address` 필수 | 회의 v2-4·10, 결정 B2·S2·S4·S5 |
+| STORE | C | 🗑️ `brand_id`<br>🆕 `biz_place_no`, `biz_place_file_path`, `status`, `website_url`, `hours`, `intro`, `photo_url`, `reject_reason`<br>✏️ `phone`·`address` 필수, `area`는 AREA에 있는 이름만(FK) | 회의 v2-4·10, 결정 B2·S2·S4·S5·L1 |
 | THEME | C | 🆕 `updated_at`, `review_count`·`rating_sum`(트리거), `reject_reason`<br>✏️ `source`에 `ADMIN` | 회의 v2-8, PM 미팅, 결정 S3·S4 |
 | THEME_GENRE | C | 그대로 | |
 | TIME_SLOT | C | ✏️ 날짜별 칸 → **주중/주말 반복 시간표**(`day_type` + `start_time`)<br>🗑️ `status` | v3 피드백 4, 결정 T2 |
 | WISHLIST | B | ✏️ `member_id`가 진짜 FK | 결정 D1 |
-| REVIEW | D | 🆕 `player_count`, `remain_seconds`(초)<br>🗑️ `nickname` 복사본<br>✏️ 실패면 남은 시간 0 | 회의 v2-6, v3 피드백 5, 결정 D2·R2 |
+| REVIEW | D | 🆕 `player_count`, `remain_minutes`(분)·`remain_seconds`(초 0~59)<br>🗑️ `nickname` 복사본<br>✏️ 실패면 남은 시간 0 | 회의 v2-6, v3 피드백 5, 결정 D2·R2 |
 | REPORT | D | ✏️ 사유는 자유 글만 | 결정 R3 |
 | MEMBER_GENRE | D | ✏️ 가입 때부터 들어감 | 회의 v2-1 |
 | PARTY | A | 🆕 `intro`(방장 한마디), `deadline_at`(모집 기한)<br>✏️ `status`에 `DELETED` | 회의 v2-5, 결정 P1 |
@@ -67,6 +69,17 @@ erDiagram
     HOLIDAY {
         DATE holiday_date PK
         VARCHAR2 name
+    }
+    REGION {
+        NUMBER region_id PK
+        VARCHAR2 name UK
+        NUMBER sort_order
+    }
+    AREA {
+        NUMBER area_id PK
+        NUMBER region_id FK
+        VARCHAR2 name UK
+        NUMBER sort_order
     }
     STORE {
         NUMBER store_id PK
@@ -133,6 +146,7 @@ erDiagram
         CHAR escaped "Y/N"
         NUMBER hint_count
         NUMBER player_count
+        NUMBER remain_minutes
         NUMBER remain_seconds
         DATE played_date
         VARCHAR2 content
@@ -176,6 +190,8 @@ erDiagram
     }
 
     MEMBER |o--o{ STORE : "사장"
+    REGION ||--|{ AREA : "세부 지역"
+    AREA ||--o{ STORE : "지역 (name)"
     STORE ||--o{ THEME : "보유"
     THEME ||--o{ THEME_GENRE : "장르"
     GENRE ||--o{ THEME_GENRE : "테마"
@@ -249,6 +265,28 @@ OR (role <> 'OWNER' AND biz_no IS NULL AND biz_file_path IS NULL)
 - 해마다 **더미 데이터(INSERT)** 로 넣습니다. 관리 화면과 API는 없습니다.
 - 날짜가 공휴일이면 "토·일·공휴일 → `WEEKEND`, 나머지 → `WEEKDAY`" 규칙에 따라 주말 시간표를 씁니다. 이 규칙을 쓰는 곳은 시간표 조회(B-3), 날짜 필터(B-1), 파티 만들기(A-14)입니다.
 
+### 3-3-1. REGION — 큰 지역 (B) 🆕
+
+| 컬럼 | 타입 | 필수 | 규칙 | 설명 |
+| --- | --- | :-: | --- | --- |
+| region_id | NUMBER | ✔ | PK | |
+| name | VARCHAR2(30) | ✔ | UK | 서울, 경기, 인천, 충청, 경상, 전라, 강원, 제주 |
+| sort_order | NUMBER(3) | ✔ | | 화면에 보일 순서 (작을수록 앞) |
+
+### 3-3-2. AREA — 세부 지역 (B) 🆕
+
+| 컬럼 | 타입 | 필수 | 규칙 | 설명 |
+| --- | --- | :-: | --- | --- |
+| area_id | NUMBER | ✔ | PK | |
+| region_id | NUMBER | ✔ | FK → REGION | 어느 큰 지역에 속하는지 |
+| name | VARCHAR2(30) | ✔ | UK | 홍대, 강남, 건대, 잠실 … (한글 10자) |
+| sort_order | NUMBER(3) | ✔ | | 큰 지역 안에서의 순서 |
+
+- STORE.`area`에는 **AREA.`name`이 그대로** 들어갑니다(FK `store_area_fk`). 그래서 세부 지역 이름은 전체에서 겹치면 안 됩니다. "중구"처럼 여러 곳에 있는 이름은 쓰지 않습니다. 부산·대구 같은 광역시는 큰 지역(경상)이 아니라 세부 지역 이름으로 넣습니다.
+- 번호(`area_id`)가 아니라 이름으로 연결한 이유: 이미 만든 검색·목록 쿼리(`store.area = …`)와 화면을 바꾸지 않으려고요.
+- REGION·HOLIDAY처럼 **더미 데이터(INSERT)** 로만 넣습니다. 관리 화면은 없습니다.
+- 쓰는 곳: 매장 등록 화면 지역 select(B-12, 전체), 손님 검색 지역 칩(B-8, 매장 있는 지역만), 매장 등록·수정 검사(C-3·C-4).
+
 ### 3-4. STORE — 매장 (C)
 
 - 사장이 등록하거나 수정하면 `PENDING`이 됩니다.
@@ -260,7 +298,7 @@ OR (role <> 'OWNER' AND biz_no IS NULL AND biz_file_path IS NULL)
 | store_id | NUMBER | ✔ | | PK | | |
 | owner_id | NUMBER | | | FK → MEMBER | 등록한 사장. **관리자가 직접 등록하면 NULL** | ✏️ |
 | name | VARCHAR2(150) | ✔ | | | 한글 50자 | |
-| area | VARCHAR2(30) | ✔ | | | 홍대/강남/건대/신촌… 필터·지역 칩 | |
+| area | VARCHAR2(30) | ✔ | | FK → AREA(`name`) | 세부 지역 이름. 홍대/강남/건대/신촌… 필터·지역 칩 | ✏️ |
 | address | VARCHAR2(300) | ✔ | | | 공개 주소 | ✏️ 필수 |
 | phone | VARCHAR2(20) | ✔ | | | 매장 전화 | ✏️ 필수 |
 | website_url | VARCHAR2(500) | ✔ | | | **매장 웹사이트**. 매장 상세 "매장 웹사이트 ↗" 버튼. `http(s)://`로 시작 | 🆕 |
@@ -369,7 +407,9 @@ store_reject_ck : status <> 'REJECTED' OR reject_reason IS NOT NULL      -- 반�
 | escaped | CHAR(1) | ✔ | | CHECK `Y`/`N` | 탈출 성공 | |
 | hint_count | NUMBER(2) | ✔ | 0 | CHECK ≥ 0 | | |
 | player_count | NUMBER(2) | ✔ | | CHECK ≥ 1 | 몇 명이서 | 🆕 |
-| remain_seconds | NUMBER(5) | ✔ | 0 | CHECK ≥ 0, CHECK `escaped = 'Y' OR remain_seconds = 0` | 남은 시간(초). **실패면 0** | 🆕 |
+| remain_minutes | NUMBER(3) | ✔ | 0 | CHECK ≥ 0 (`review_min_ck`) | 남은 시간의 **분** (3분 47초면 3). **실패면 0** | 🆕 |
+| remain_seconds | NUMBER(2) | ✔ | 0 | CHECK 0~59 (`review_sec_ck`) | 남은 시간의 **초** (3분 47초면 47). **실패면 0** | 🆕 |
+| | | | | CHECK `escaped = 'Y' OR (remain_minutes = 0 AND remain_seconds = 0)` (`review_fail_ck`) | 실패 후기는 분·초 둘 다 0 | |
 | played_date | DATE | ✔ | TRUNC(SYSDATE) | | 플레이한 날. **비우면 작성일** | ✏️ |
 | content | VARCHAR2(600) | | | | 한 줄 후기 (한글 200자) | |
 | status | VARCHAR2(10) | ✔ | `'VISIBLE'` | CHECK `VISIBLE`/`HIDDEN` | 숨김은 신고 처리용(이번 범위 밖) | |
@@ -377,8 +417,9 @@ store_reject_ck : status <> 'REJECTED' OR reject_reason IS NOT NULL      -- 반�
 | ~~nickname~~ | | | | | 복사본 없앰 → JOIN | 🗑️ |
 | | | | | UK(member_id, theme_id) | 한 테마에 후기 하나 → 409 | |
 
-- 남은 시간 위쪽 한계(`≤ play_minutes × 60`)는 서버가 검사합니다.
-- 화면에서는 `mm:ss`로 바꿔 보여 줍니다.
+- 남은 시간 위쪽 한계(`분 × 60 + 초 ≤ play_minutes × 60`)는 서버가 검사합니다.
+- 화면에서는 분·초를 `mm:ss`로 붙여 보여 줍니다(예: 12분 34초 → `12:34`).
+- 처음엔 초 한 칸(`remain_seconds`, 3분 47초 = 227)이었는데, 화면 입력이 분·초 두 칸이라 DB도 두 칸으로 나눴습니다.
 
 ### 3-10. REPORT — 후기 신고 (D)
 
@@ -577,16 +618,18 @@ v3 구조에 맞춰 새로 만들 때 아래를 꼭 넣어 주세요. 팀이 v1�
   - 사장 `owner1`·`owner2`: `biz_no`, `biz_file_path` 포함
   - 손님 `user1`~`user4`
   - 본사·정지 계정은 없습니다.
+- **REGION·AREA**: 큰 지역 8개, 세부 지역 35개. **STORE보다 먼저** 넣어야 FK에 걸리지 않습니다.
 - **HOLIDAY**: 올해와 내년 공휴일. 테스트용으로 11월 평일 하루를 임시 공휴일로 넣어 두면 주말 시간표로 바뀌는지 확인하기 좋습니다.
 - **STORE**
   - 상태별로 하나 이상: `APPROVED` 여러 개, `PENDING` 1~2개(승인 화면 테스트), `REJECTED` 1개(사유 보이는지 테스트)
   - 모두 `website_url`, `hours`, `intro`, `biz_place_no` 포함
+  - `area`는 AREA에 있는 이름 (홍대·강남·건대·신촌)
   - `photo_url`: `/uploads/stores/common-0N.jpg` (더미 매장 사진)
 - **THEME**: `REJECTED` 테마 1개(사유 포함)
   - `poster_url`: `/uploads/posters/{장르}-NN.jpg` (더미 테마 사진)
 - **TIME_SLOT**: 테마마다 `WEEKDAY`·`WEEKEND` 시간들
 - **REVIEW**
-  - `player_count`, `remain_seconds` 포함. 실패 후기는 `remain_seconds = 0`
+  - `player_count`, `remain_minutes`, `remain_seconds` 포함. 실패 후기는 분·초 둘 다 0
   - **트리거를 먼저 만든 뒤** INSERT해야 THEME 별점이 채워집니다.
 - **PARTY**
   - 상태별로 하나 이상: 모집 중, FULL, 기한이 지난 RECRUITING 1개(스케줄러 테스트), `DELETED` 1개(목록에 안 보이는지)
@@ -612,10 +655,12 @@ v3 구조에 맞춰 새로 만들 때 아래를 꼭 넣어 주세요. 팀이 v1�
 | T1 | 공휴일 | **주말 시간표로 봄** | HOLIDAY 테이블, 날 유형 규칙 |
 | T2 | 날짜·회차별 마감 | **없음** | TIME_SLOT에 상태 없음 |
 | R1 | 후기 플레이한 날 | **선택 입력, 비우면 작성일** | `played_date` 기본값 |
-| R2 | 실패 후기의 남은 시간 | **0으로 저장** | CHECK `review_fail_ck` |
+| R2 | 실패 후기의 남은 시간 | **0으로 저장** (분·초 둘 다) | CHECK `review_fail_ck` |
 | R3 | 신고 사유 | **자유 글만. 유형은 받지도 저장하지도 않음** | REPORT.`reason`, D-11 |
 | P1 | 파티 삭제 | **실제 삭제 안 함, status로 관리** | PARTY.status `DELETED` |
 | P2 | 강퇴된 사람 재참여 | **불가** | PARTY_MEMBER.status `KICKED` |
 | P3 | 채팅 안내 줄 | **저장해서 사용** | PARTY_MESSAGE.`msg_type` |
-| C1 | 비회원 추천 자리 | **평점 높은 OPEN 테마 5개 (B-1 sort=rate)** | API D-9 설명 |
+| C1 | 비회원 추천 자리 | **이번 주 인기 OPEN 테마 5개 (B-1 sort=popular)**. 처음엔 평점순이었다가 C2로 바뀜 | API D-9 설명 |
+| C2 | 인기 테마 기준 | **최근 7일 새 파티×3 + 새 찜×2 + 새 후기×1** (같으면 평점순). 누적이 아니라 7일만 셈 | API B-1 `sort=popular`·`weeklyScore` (WISHLIST·PARTY·REVIEW의 `created_at` 사용) |
+| L1 | 매장 지역 | **직접 입력 대신 목록에서 고름. 큰 지역(REGION) → 세부 지역(AREA) 2단계** | REGION·AREA 테이블, STORE.`area` FK, B-8·B-12, C-3·C-4 |
 | S5 | 사진을 어디서 관리하나 / 매장 사진 | **테마·매장 사진 모두 백엔드에서 관리. 매장 사진도 받음(선택)** | STORE.`photo_url`, C-3·C-4 `storePhoto`, B-9·B-10·C-1·C-14 `photoUrl`, 6번 저장 규칙 |
