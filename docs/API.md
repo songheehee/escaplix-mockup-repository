@@ -839,7 +839,8 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
   {
     "storeId": 1, "name": "미스터리룸 홍대점", "area": "홍대",
     "address": "서울 마포구 …", "hours": "10:00 ~ 23:00 (연중무휴)", "photoUrl": "/uploads/stores/7b1e.jpg",
-    "genres": ["공포", "추리", "감성"], "themeCount": 3, "avgRating": 4.3, "recruitingPartyCount": 3
+    "genres": ["공포", "추리", "감성"], "themeCount": 3, "avgRating": 4.3, "recruitingPartyCount": 3,
+    "approvedAt": "2026-11-10T00:00:00"
   }
 ]
 ```
@@ -848,6 +849,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 - `genres`, `themeCount`, `avgRating`, `recruitingPartyCount`는 그 매장의 OPEN 테마로 계산해요. `avgRating`은 테마 평균 별점들의 평균이에요.
 - `keyword`는 매장 이름 일부로 찾고, 띄어쓰기는 무시해요.
 - `photoUrl`은 매장 사진이에요. 없으면 `null`이에요(결정 S5).
+- `approvedAt`은 매장이 **처음 승인된 때**예요. 화면은 30일 안이면 매장 카드에 NEW를 붙여요(테마 NEW는 `createdAt` 14일). 사장이 수정해서 다시 승인받아도 바뀌지 않아요. 관리자가 직접 등록한 매장은 등록한 때예요.
 - 브랜드 정보는 없어요(결정 B1).
 
 #### B-10. 매장 상세

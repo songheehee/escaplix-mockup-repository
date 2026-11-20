@@ -23,7 +23,7 @@
 | 🆕 REGION | B | 큰 지역 코드 (서울·경기·인천…) | 결정 L1 |
 | 🆕 AREA | B | 세부 지역 코드 (홍대·강남…). STORE.`area`가 이 이름을 가리킴 | 결정 L1 |
 | 🗑️ BRAND | — | 테이블 삭제 (브랜드 정보를 받지 않음) | 결정 B1 |
-| STORE | C | 🗑️ `brand_id`<br>🆕 `biz_place_no`, `biz_place_file_path`, `status`, `website_url`, `hours`, `intro`, `photo_url`, `reject_reason`<br>✏️ `phone`·`address` 필수, `area`는 AREA에 있는 이름만(FK) | 회의 v2-4·10, 결정 B2·S2·S4·S5·L1 |
+| STORE | C | 🗑️ `brand_id`<br>🆕 `biz_place_no`, `biz_place_file_path`, `status`, `website_url`, `hours`, `intro`, `photo_url`, `reject_reason`, `approved_at`<br>✏️ `phone`·`address` 필수, `area`는 AREA에 있는 이름만(FK) | 회의 v2-4·10, 결정 B2·S2·S4·S5·L1 |
 | THEME | C | 🆕 `updated_at`, `review_count`·`rating_sum`(트리거), `reject_reason`<br>✏️ `source`에 `ADMIN` | 회의 v2-8, PM 미팅, 결정 S3·S4 |
 | THEME_GENRE | C | 그대로 | |
 | TIME_SLOT | C | ✏️ 날짜별 칸 → **주중/주말 반복 시간표**(`day_type` + `start_time`)<br>🗑️ `status` | v3 피드백 4, 결정 T2 |
@@ -98,6 +98,7 @@ erDiagram
         VARCHAR2 biz_place_file_path
         VARCHAR2 status "PENDING/APPROVED/REJECTED"
         VARCHAR2 reject_reason
+        DATE approved_at
         DATE created_at
     }
     THEME {
@@ -310,14 +311,16 @@ OR (role <> 'OWNER' AND biz_no IS NULL AND biz_file_path IS NULL)
 | biz_place_file_path | VARCHAR2(500) | | | | 사업장등록증 경로(비공개 폴더) | 🆕 |
 | status | VARCHAR2(10) | ✔ | `'PENDING'` | CHECK `PENDING`/`APPROVED`/`REJECTED` | 매장 승인 상태 | 🆕 |
 | reject_reason | VARCHAR2(900) | | | | **반려 사유**. 관리자가 쓰고 사장에게 보임 (한글 300자) | 🆕 |
+| approved_at | DATE | | | CHECK `status <> 'APPROVED' OR approved_at IS NOT NULL` | **처음 승인된 때**. 손님 화면 매장 NEW(30일) 기준. 수정 뒤 다시 승인돼도 안 바뀜. 관리자 직접 등록이면 등록한 때 | 🆕 |
 | created_at | DATE | ✔ | SYSDATE | | 신청일 | |
 | ~~brand_id~~ | | | | | 브랜드 받지 않음 | 🗑️ |
 
-**CHECK 두 개**
+**CHECK 세 개**
 
 ```sql
-store_file_ck   : owner_id IS NULL OR biz_place_file_path IS NOT NULL   -- 사장이 등록하면 등록증 필수
-store_reject_ck : status <> 'REJECTED' OR reject_reason IS NOT NULL      -- 반려하면 사유 필수
+store_file_ck     : owner_id IS NULL OR biz_place_file_path IS NOT NULL   -- 사장이 등록하면 등록증 필수
+store_reject_ck   : status <> 'REJECTED' OR reject_reason IS NOT NULL      -- 반려하면 사유 필수
+store_approved_ck : status <> 'APPROVED' OR approved_at IS NOT NULL        -- 승인되면 승인일 필수
 ```
 
 - **수정하면 무조건 다시 승인 대기**입니다(결정 S1). 이미 `APPROVED`인 매장을 사장이 고쳐도 `PENDING`으로 돌아갑니다. 관리자가 직접 등록·수정한 매장은 바로 `APPROVED`입니다(결정 S3).
