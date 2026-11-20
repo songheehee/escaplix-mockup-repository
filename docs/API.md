@@ -159,7 +159,7 @@ API는 모두 **63개**예요. 11/18 팀 결정([ERD 8번](ERD.md#8-확정된-�
 | **B-6** | GET | `/api/my/wishes` | 찜 목록 | USER | 200 |
 | **B-7** | GET | `/api/genres` | 장르 목록 | 공개 | 200 |
 | **B-8** | GET | `/api/areas` | 지역 목록 | 공개 | 200 |
-| **B-9** | GET | `/api/stores?area=&keyword=` | 매장 목록 | 공개 | 200 |
+| **B-9** | GET | `/api/stores?area=&region=&keyword=&sort=` | 매장 목록 | 공개 | 200 |
 | **B-10** | GET | `/api/stores/{storeId}` | 매장 상세 (+테마) | 공개 | 200 |
 | ~~B-11~~ | | | 🗑️ 없앰 (지도는 매장 상세 B-10 좌표로 그림) | | |
 | **B-12** | GET | `/api/regions` | 지역 전체 (큰 지역별 묶음, 매장 등록용) | 공개 | 200 |
@@ -731,7 +731,7 @@ API는 모두 **63개**예요. 11/18 팀 결정([ERD 8번](ERD.md#8-확정된-�
 
 | 쿼리 | 설명 |
 | --- | --- |
-| keyword | **테마 이름 또는 매장 이름** 일부. 띄어쓰기 무시 (`REPLACE(col, ' ', '') LIKE '%' \|\| #{kw} \|\| '%'`) |
+| keyword | **테마 이름** 일부. 띄어쓰기 무시 (`REPLACE(title, ' ', '') LIKE ...`). 매장 이름은 B-9에서 찾아요 (화면은 검색 결과를 [테마] [매장] 탭으로 보여 줌) |
 | area | 세부 지역 (B-8 값, 예: `홍대`) |
 | date | 그날 유형 시간표가 하나라도 있는 테마만. 날 유형: **토·일·공휴일(HOLIDAY) → `WEEKEND`**, 나머지 `WEEKDAY`. 오늘 이전이면 400 |
 | people | `min_people ≤ people ≤ max_people` |
@@ -832,7 +832,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 
 #### B-9. 매장 목록
 
-`GET /api/stores?area=&keyword=` · 공개 · 200 · 화면 S27 `stores.html`
+`GET /api/stores?area=&region=&keyword=&sort=` · 공개 · 200 · 화면 S27 `stores.html`
 
 ```json
 [
@@ -848,6 +848,8 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 - **APPROVED 매장만** 보내요.
 - `genres`, `themeCount`, `avgRating`, `recruitingPartyCount`는 그 매장의 OPEN 테마로 계산해요. `avgRating`은 테마 평균 별점들의 평균이에요.
 - `keyword`는 매장 이름 일부로 찾고, 띄어쓰기는 무시해요.
+- `region`은 큰 지역 이름(서울·경기 …)이에요. 그 안의 모든 세부 지역 매장을 보내요. `area`가 있으면 `area`가 우선이에요.
+- `sort`는 `rate`(평점순, 기본)와 `new`(최신순) 두 가지예요. 평점순은 평점 높은 순이고 후기 없는 매장은 뒤로 가요. 같으면 최근 승인된 매장이 앞이에요. 최신순은 처음 승인된 때(`approvedAt`)가 최근인 순이에요. 그 밖의 값은 400이에요.
 - `photoUrl`은 매장 사진이에요. 없으면 `null`이에요(결정 S5).
 - `approvedAt`은 매장이 **처음 승인된 때**예요. 화면은 30일 안이면 매장 카드에 NEW를 붙여요(테마 NEW는 `createdAt` 14일). 사장이 수정해서 다시 승인받아도 바뀌지 않아요. 관리자가 직접 등록한 매장은 등록한 때예요.
 - 브랜드 정보는 없어요(결정 B1).
@@ -1489,7 +1491,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 | A-13 | 새 채팅 | A-20 | msgType, mine |
 | A-14 | 채팅 보내기 | A-21 | |
 | — | | A-22 | 🆕 내 채팅 목록 |
-| B-1 | 테마 목록 | B-1 | keyword에 매장 이름, 공휴일 규칙, recruitingPartyCount |
+| B-1 | 테마 목록 | B-1 | keyword는 테마 이름만 (매장 이름은 B-9), 공휴일 규칙, recruitingPartyCount |
 | B-2 | 상세 | B-2 | recruitingPartyCount |
 | B-3 | 시간표 | B-3 | 주중/주말·공휴일 반복, endTime, status 삭제 |
 | B-4~B-8 | 찜·취소·찜 목록·장르·지역 | B-4~B-8 | 찜 목록에 status |
