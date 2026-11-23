@@ -1318,13 +1318,16 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 
 ```json
 [
-  { "reviewId": 15, "themeId": 9, "themeTitle": "사라진 기억", "storeName": "어둠상자 홍대점", "playMinutes": 70,
+  { "reviewId": 15, "themeId": 9, "themeTitle": "사라진 기억", "storeName": "어둠상자 홍대점", "area": "홍대",
+    "posterUrl": "/uploads/posters/3f2a.jpg", "playMinutes": 70,
     "rating": 4, "escaped": true, "hintCount": 1, "playerCount": 3, "remainMinutes": 3, "remainSeconds": 47,
     "playedDate": "2026-11-09", "content": null, "status": "VISIBLE" }
 ]
 ```
 
 - 플레이한 날 최신순으로 보내요. 숨김(HIDDEN) 후기도 상태와 함께 보내요.
+- `posterUrl`은 테마 포스터의 공개 주소예요. 포스터가 없으면 `null`이에요.
+- `area`는 매장의 세부 지역 이름이에요 (B-8 지역 목록의 이름). 후기 상세에 "매장 · 지역"으로 보여요.
 - 각 줄의 "수정" 버튼은 이 값으로 후기 팝업을 채워서 열어요.
 
 #### D-6. 후기 쓸 수 있는 테마
@@ -1390,14 +1393,34 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 
 #### D-10. 내 통계 (선택 기능)
 
-`GET /api/my/stats` · USER · 200 · 화면 S18 위쪽 숫자 칸
+`GET /api/my/stats` · USER · 200 · 화면 S18 내 기록 플레이 통계 (카드 4개 + 지역별 제패율)
 
 ```json
-{ "playCount": 6, "escapeCount": 5, "escapeRate": 83, "topGenre": { "name": "추리", "count": 4 },
-  "byGenre": [ { "name": "추리", "count": 4 }, { "name": "공포", "count": 3 } ] }
+{ "playCount": 6, "escapeCount": 5, "escapeRate": 83,
+  "noHintCount": 2, "noHintRate": 33,
+  "avgRemainSeconds": 365, "avgRemainRate": 15,
+  "conquerCount": 6, "themeCount": 48, "conquerRate": 13,
+  "byRegion": [
+    { "regionId": 1, "name": "서울", "playedCount": 5, "themeCount": 30, "rate": 17 },
+    { "regionId": 2, "name": "경기", "playedCount": 1, "themeCount": 8, "rate": 13 },
+    { "regionId": 8, "name": "제주", "playedCount": 0, "themeCount": 0, "rate": 0 }
+  ] }
 ```
 
 - 내 후기를 기준으로 계산해요. 숨김 후기도 포함해요. 내 기록이니까요.
+- 비율은 모두 % 정수(반올림)예요. 나누는 수가 0이면 0이에요.
+
+| 값 | 뜻 |
+|---|---|
+| `escapeRate` | 탈출 성공 ÷ 플레이 |
+| `noHintCount`, `noHintRate` | 힌트 0개로 탈출 성공한 수, 그 수 ÷ 플레이 |
+| `avgRemainSeconds` | 평균 남은 시간(초, 반올림). **탈출 성공한 판만** 평균내요 (실패는 남은 시간이 0이라 빼요). 성공이 없으면 `null` |
+| `avgRemainRate` | 탈출 성공한 판마다 남은 시간 ÷ 그 테마 제한 시간을 구해 평균낸 %. 테마마다 제한 시간이 달라서 비율로도 줘요. 성공이 없으면 0 |
+| `conquerCount`, `themeCount`, `conquerRate` | 전국 제패: 지금 공개된 테마 중 내가 플레이(후기 작성)한 수 ÷ 공개 테마 수 |
+| `byRegion` | 큰 지역(B-12 REGION)별 제패. 매장 세부 지역(`store.area`) → 큰 지역으로 묶어요. 8개 지역이 `sort_order` 순서로 모두 오고, 테마가 없는 지역은 0 / 0이에요 |
+
+- 지금 공개가 아닌 테마(닫힌 테마, 승인 안 된 매장)는 제패 계산에서 빠져요. 그래서 `conquerCount`가 `playCount`보다 작을 수 있어요.
+- v1의 장르별 통계(`topGenre`, `byGenre`)는 화면에서 빼기로 해서 없앴어요.
 
 #### D-11. 후기 신고
 
@@ -1453,7 +1476,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 | S14 시간표 관리 | `owner-slots.html` | C | C-10, C-11 |
 | S15 테마 승인 목록 | `admin-themes.html` | C | C-17 |
 | S17 후기 팝업 (공용) | `js/review-modal.js` | D | D-6 (테마 고르기), D-1, D-2 |
-| S18 마이페이지 내 기록 | `mypage.html` | D | D-10, D-5, D-3, 후기 팝업 |
+| S18 마이페이지 내 기록 | `mypage.html` (요약), `?view=reviews` (전체 후기) | D | D-10, D-5, D-3, 후기 팝업 |
 | S20 내 채팅 탭 | `chats.html` | A | A-22, 후기 팝업 (끝난 파티) |
 | S21 매장 등록 | `store-form.html` | C | B-12, C-2, C-3, C-4 |
 | S22 매장 승인 목록 | `admin-stores.html` | C | C-13 |
