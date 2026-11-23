@@ -51,30 +51,10 @@
         <div class="spread"><b>힌트없이</b><span class="stars">★★★★☆</span></div>
         <div class="small"><span class="badge ok">탈출 성공</span> 힌트 0개 · <b>12:34 남기고</b> (70:00 중) · <b>3명</b>이서 · 2026-10-19 플레이</div>
         <p>인형 연출이 소름 돋아요. 추리도 탄탄해요.</p>
-        <div class="spread"><span></span><a class="small" href="#report-modal">🚩 신고</a></div>
       </div>
     </section>
 
   </main>
-
-  <!-- 후기 신고 팝업 (페이지 이동 없이 이 화면 위에 뜸) -->
-  <div class="modal" id="report-modal">
-    <div class="card">
-      <div class="screen-id">S09 안의 팝업 · 후기 신고 · D</div>
-      <h2 style="margin-top:4px">이 후기를 신고할까요?</h2>
-      <div class="card small" style="background:var(--surface2)">
-        <b>힌트없이</b> · <span class="stars">★★★★☆</span><br>
-        인형 연출이 소름 돋아요. 추리도 탄탄해요.
-      </div>
-      <label for="report-reason">신고 사유</label>
-      <textarea id="report-reason" maxlength="300" placeholder="어떤 점이 문제인지 적어 주세요 (300자 이내)"></textarea>
-      <p class="muted small">D-11 POST /api/reviews/{id}/report → REPORT 한 줄 (같은 후기를 두 번 신고하면 409)</p>
-      <div class="row" style="justify-content:flex-end">
-        <a class="btn gray" href="#">취소</a>
-        <a class="btn danger" href="#">신고 접수</a>
-      </div>
-    </div>
-  </div>
 
   <script src="js/common.js"></script>
   <script src="js/review-modal.js"></script>

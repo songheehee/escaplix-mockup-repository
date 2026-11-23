@@ -13,7 +13,7 @@
 
 ## 1. 한눈에 보는 변경 (v1 → v3)
 
-테이블은 **16개**입니다. BRAND를 없애고 HOLIDAY, REGION·AREA(지역)를 새로 만들었습니다.
+테이블은 **15개**입니다. BRAND·REPORT를 없애고 HOLIDAY, REGION·AREA(지역)를 새로 만들었습니다.
 
 | 테이블 | 담당 | 바뀐 내용 | 근거 |
 | --- | --- | --- | --- |
@@ -29,7 +29,7 @@
 | TIME_SLOT | C | ✏️ 날짜별 칸 → **주중/주말 반복 시간표**(`day_type` + `start_time`)<br>🗑️ `status` | v3 피드백 4, 결정 T2 |
 | WISHLIST | B | ✏️ `member_id`가 진짜 FK | 결정 D1 |
 | REVIEW | D | 🆕 `player_count`, `remain_minutes`(분)·`remain_seconds`(초 0~59)<br>🗑️ `nickname` 복사본<br>✏️ 실패면 남은 시간 0 | 회의 v2-6, v3 피드백 5, 결정 D2·R2 |
-| REPORT | D | ✏️ 사유는 자유 글만 | 결정 R3 |
+| 🗑️ REPORT | — | 테이블 삭제 (후기 신고 기능을 뺌, 11/23) | |
 | MEMBER_GENRE | D | ✏️ 가입 때부터 들어감 | 회의 v2-1 |
 | PARTY | A | 🆕 `intro`(방장 한마디), `deadline_at`(모집 기한)<br>✏️ `status`에 `DELETED` | 회의 v2-5, 결정 P1 |
 | PARTY_MEMBER | A | 🆕 `status`(JOINED/KICKED)<br>🗑️ `nickname` 복사본 | 결정 P2·D2 |
@@ -154,14 +154,6 @@ erDiagram
         VARCHAR2 status "VISIBLE/HIDDEN"
         DATE created_at
     }
-    REPORT {
-        NUMBER report_id PK
-        NUMBER review_id FK
-        NUMBER reporter_id FK
-        VARCHAR2 reason
-        VARCHAR2 status "WAIT/DONE"
-        DATE created_at
-    }
     PARTY {
         NUMBER party_id PK
         NUMBER theme_id FK
@@ -201,8 +193,6 @@ erDiagram
     THEME ||--o{ WISHLIST : "찜됨"
     MEMBER ||--o{ REVIEW : "작성"
     THEME ||--o{ REVIEW : "후기"
-    REVIEW ||--o{ REPORT : "신고됨"
-    MEMBER ||--o{ REPORT : "신고함"
     MEMBER ||--o{ MEMBER_GENRE : "선호"
     GENRE ||--o{ MEMBER_GENRE : "선호됨"
     THEME ||--o{ PARTY : "파티"
@@ -415,7 +405,7 @@ store_approved_ck : status <> 'APPROVED' OR approved_at IS NOT NULL        -- �
 | | | | | CHECK `escaped = 'Y' OR (remain_minutes = 0 AND remain_seconds = 0)` (`review_fail_ck`) | 실패 후기는 분·초 둘 다 0 | |
 | played_date | DATE | ✔ | TRUNC(SYSDATE) | | 플레이한 날. **비우면 작성일** | ✏️ |
 | content | VARCHAR2(600) | | | | 한 줄 후기 (한글 200자) | |
-| status | VARCHAR2(10) | ✔ | `'VISIBLE'` | CHECK `VISIBLE`/`HIDDEN` | 숨김은 신고 처리용(이번 범위 밖) | |
+| status | VARCHAR2(10) | ✔ | `'VISIBLE'` | CHECK `VISIBLE`/`HIDDEN` | 숨김은 관리자 처리용(나중 기능) | |
 | created_at | DATE | ✔ | SYSDATE | | | |
 | ~~nickname~~ | | | | | 복사본 없앰 → JOIN | 🗑️ |
 | | | | | UK(member_id, theme_id) | 한 테마에 후기 하나 → 409 | |
@@ -424,19 +414,9 @@ store_approved_ck : status <> 'APPROVED' OR approved_at IS NOT NULL        -- �
 - 화면에서는 분·초를 `mm:ss`로 붙여 보여 줍니다(예: 12분 34초 → `12:34`).
 - 처음엔 초 한 칸(`remain_seconds`, 3분 47초 = 227)이었는데, 화면 입력이 분·초 두 칸이라 DB도 두 칸으로 나눴습니다.
 
-### 3-10. REPORT — 후기 신고 (D)
+### 3-10. ~~REPORT~~ — 삭제 (11/23)
 
-| 컬럼 | 타입 | 필수 | 기본값 | 규칙 | 설명 |
-| --- | --- | :-: | --- | --- | --- |
-| report_id | NUMBER | ✔ | | PK | |
-| review_id | NUMBER | ✔ | | FK → REVIEW | |
-| reporter_id | NUMBER | ✔ | | FK → MEMBER | 신고한 사람 |
-| reason | VARCHAR2(900) | ✔ | | | **자유 글 사유만** (한글 300자). 유형은 받지 않음 |
-| status | VARCHAR2(10) | ✔ | `'WAIT'` | CHECK `WAIT`/`DONE` | |
-| created_at | DATE | ✔ | SYSDATE | | |
-| | | | | UK(review_id, reporter_id) | 같은 후기 두 번 신고 → 409 |
-
-이번 범위는 **접수까지**입니다. 관리자 처리 화면은 나중 기능입니다.
+후기 신고 기능을 빼면서 테이블도 없앴습니다. 번호는 다른 문서의 링크가 깨지지 않게 그대로 둡니다.
 
 ### 3-11. MEMBER_GENRE — 선호 장르 N:M (D)
 
@@ -559,8 +539,7 @@ stateDiagram-v2
 | 컬럼 | 값 | 이번 범위에서 바뀌는 곳 |
 | --- | --- | --- |
 | PARTY_MEMBER.status | JOINED / KICKED | 강퇴(A-18)하면 KICKED |
-| REVIEW.status | VISIBLE / HIDDEN | 없음. 숨김은 신고 처리(나중 기능) |
-| REPORT.status | WAIT / DONE | 접수(D-11) 때 WAIT. DONE은 나중 기능 |
+| REVIEW.status | VISIBLE / HIDDEN | 없음. 숨김은 관리자 처리(나중 기능) |
 | MEMBER.role | USER / OWNER / ADMIN | 가입(A-1, A-2) 때 정해지고 바뀌지 않음 |
 
 ---
@@ -659,7 +638,7 @@ v3 구조에 맞춰 새로 만들 때 아래를 꼭 넣어 주세요. 팀이 v1�
 | T2 | 날짜·회차별 마감 | **없음** | TIME_SLOT에 상태 없음 |
 | R1 | 후기 플레이한 날 | **선택 입력, 비우면 작성일** | `played_date` 기본값 |
 | R2 | 실패 후기의 남은 시간 | **0으로 저장** (분·초 둘 다) | CHECK `review_fail_ck` |
-| R3 | 신고 사유 | **자유 글만. 유형은 받지도 저장하지도 않음** | REPORT.`reason`, D-11 |
+| ~~R3~~ | ~~신고 사유~~ | 신고 기능을 빼서 없어진 결정 (11/23) | |
 | P1 | 파티 삭제 | **실제 삭제 안 함, status로 관리** | PARTY.status `DELETED` |
 | P2 | 강퇴된 사람 재참여 | **불가** | PARTY_MEMBER.status `KICKED` |
 | P3 | 채팅 안내 줄 | **저장해서 사용** | PARTY_MESSAGE.`msg_type` |
