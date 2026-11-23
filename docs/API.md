@@ -72,17 +72,18 @@ API는 모두 **62개**예요. 11/18 팀 결정([ERD 8번](ERD.md#8-확정된-�
 | 로그인 | 로그인한 누구나 | 토큰이 있고 유효한지 |
 | USER | 손님 | `role = USER` |
 | OWNER | 사장 | `role = OWNER` |
-| OWNER\* | 사장, 그리고 관리자 직접 등록 | `role IN (OWNER, ADMIN)`. 사장이면 **자기 매장·테마인지** 매번 확인 |
+| OWNER\* | 사장, 그리고 관리자(매장 관리) | `role IN (OWNER, ADMIN)`. 사장이면 **자기 매장·테마인지** 매번 확인. 관리자는 모든 매장 |
 | ADMIN | 관리자 | `role = ADMIN` |
 | 방장 / 참여자 / 작성자 | 그 데이터의 주인 | DB에서 확인. 화면에서 버튼을 숨겨도 서버가 다시 확인해야 해요 |
 
-**관리자 직접 등록 (OWNER\*)**
+**관리자 매장 관리 (OWNER\*)**
 
 회의 v2-3에서 "사장이 오지 않았지만 손님 수요가 있으면 관리자도 매장·테마·시간표를 등록할 수 있다"고 정했어요. 그래서 관리자도 사장 API를 그대로 써요. 관리자가 부르면 이렇게 처리해요(ERD 결정 S3).
 
-- 소유 검사를 건너뛰어요.
-- 매장은 `owner_id = NULL`, `status = APPROVED`로 바로 공개돼요.
-- 테마는 `source = ADMIN`, `status = OPEN`으로 바로 공개돼요.
+- 소유 검사를 건너뛰어요. **사장이 등록한 매장도 보고 고칠 수 있어요**(관리자 개편 11/23, "매장 관리" 화면).
+- 관리자가 새로 등록한 매장은 `owner_id = NULL`, `status = APPROVED`로 바로 공개돼요.
+- 관리자가 새로 등록한 테마는 `source = ADMIN`, `status = OPEN`으로 바로 공개돼요.
+- 관리자가 고친 매장·테마는 **상태가 그대로**예요(사장 매장이어도 다시 승인 대기로 가지 않아요). 승인하는 사람이 관리자라서요.
 
 ### 1-5. 응답 형식
 
@@ -240,7 +241,7 @@ API는 모두 **62개**예요. 11/18 팀 결정([ERD 8번](ERD.md#8-확정된-�
 | 매장 승인 | C-13 목록, C-14 상세, C-15 사업장등록증, A-11 사장 사업자등록증, C-16 승인·반려 |
 | 테마 승인 | C-17 목록, C-18 상세, C-19 승인·반려 |
 | 회원 관리 | A-10 목록·검색·역할 필터 |
-| 직접 등록 | C-1 ~ C-11을 관리자 권한으로 사용 ([1-4](#1-4-권한-표기)) |
+| 매장 관리 | C-1 ~ C-11을 관리자 권한으로 사용 ([1-4](#1-4-권한-표기)). 승인된 매장 전체 |
 
 ---
 
@@ -434,15 +435,18 @@ API는 모두 **62개**예요. 11/18 팀 결정([ERD 8번](ERD.md#8-확정된-�
   "countByRole": { "USER": 5, "OWNER": 3, "ADMIN": 1 },
   "members": [
     { "memberId": 1, "loginId": "owner1", "nickname": "미스터리룸홍대", "role": "OWNER",
-      "bizNo": "111-22-33333", "managedStoreCount": 2, "createdAt": "2026-11-16T10:00:00" },
+      "bizNo": "111-22-33333", "managedStoreCount": 2, "createdAt": "2026-11-16T10:00:00",
+      "stores": [ { "storeId": 1, "name": "미스터리룸 홍대점", "status": "APPROVED" },
+                  { "storeId": 9, "name": "미스터리룸 합정점", "status": "PENDING" } ] },
     { "memberId": 4, "loginId": "user1", "nickname": "탈출왕", "role": "USER",
-      "bizNo": null, "managedStoreCount": null, "createdAt": "2026-11-16T10:00:00" }
+      "bizNo": null, "managedStoreCount": null, "createdAt": "2026-11-16T10:00:00", "stores": null }
   ]
 }
 ```
 
 - `countByRole`은 keyword·role 조건과 상관없이 전체 수예요. 역할 탭 숫자에 써요.
 - `managedStoreCount`는 사장의 매장 수예요(STORE JOIN). 상태와 상관없이 셉니다.
+- `stores`는 사장의 매장 목록(등록 순)이에요. 회원 관리에서 "매장 N곳 ▾"을 누르면 그 줄 아래에 보여 줘요. 사장이 아니면 `null`이에요.
 - 회원 정지·해제 API(v1 A-6)는 **없어요**.
 
 #### A-11. 사업자등록증 이미지 (관리자)
@@ -917,13 +921,15 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
   { "storeId": 1, "name": "미스터리룸 홍대점", "area": "홍대", "address": "서울 마포구 …",
     "phone": "02-000-0001", "websiteUrl": "https://example.com/mystery-hongdae",
     "hours": "10:00 ~ 23:00", "intro": "…", "photoUrl": "/uploads/stores/7b1e.jpg", "bizPlaceNo": "123-45-67890",
-    "status": "APPROVED", "rejectReason": null, "themeCount": 3, "createdAt": "2026-11-10T10:00:00" },
+    "status": "APPROVED", "rejectReason": null, "themeCount": 3, "createdAt": "2026-11-10T10:00:00",
+    "approvedAt": "2026-11-11T09:00:00", "ownerLoginId": "owner1", "ownerNickname": "미스터리룸홍대" },
   { "storeId": 10, "name": "미스터리룸 신촌점", "status": "REJECTED",
     "rejectReason": "사업장등록증의 상호와 매장 이름이 다릅니다. 다시 확인해 주세요.", "…": "…" }
 ]
 ```
 
-- 사장이 부르면 `owner_id = 나`인 매장을, 관리자가 부르면 `owner_id IS NULL`인 매장(직접 등록한 매장)을 보내요.
+- 사장이 부르면 `owner_id = 나`인 매장을, 관리자가 부르면 **승인된 매장 전체**(사장 매장 + 관리자가 등록한 매장)를 최신 등록순으로 보내요(관리자 개편 11/23, "매장 관리" 화면). 승인 대기·반려 매장은 승인 요청 화면(C-13)에서 봐요.
+- `ownerLoginId`·`ownerNickname`은 매장 사장이에요. 관리자가 등록한 매장이면 `null`이에요. `approvedAt`은 처음 승인된 때예요.
 - `rejectReason`은 반려된 매장일 때만 값이 있어요. 사장 홈에서 매장 옆에 보여 줘요(결정 S4).
 - 매장 수정 화면의 처음 값도 이 응답으로 채워요.
 - 테마 등록 화면의 매장 선택칸에는 **APPROVED 매장만** 보여 줘요(화면에서 거름).
@@ -940,12 +946,11 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 | --- | --- | :-: | --- |
 | name | text | ✔ | 1~50자 |
 | area | text | ✔ | **세부 지역 이름** (B-12 목록 중 하나, 예: `홍대`). 목록에 없으면 400 (결정 L1) |
-| address | text | ✔ | 1~100자 |
+| address | text | ✔ | 1~100자. 화면은 "도로명 주소, 상세 주소"로 합쳐 보내요(다음 우편번호 서비스로 고름) |
 | phone | text | ✔ | 숫자와 `-`, 9~13자 |
 | websiteUrl | text | ✔ | **매장 웹사이트**. `http://`나 `https://`로 시작, 500자 이내 (결정 B2) |
 | hours | text | ✔ | **영업시간** 50자 이내 (결정 S2) |
 | intro | text | ✔ | **매장 소개** 200자 이내 (결정 S2) |
-| lat, lng | number | | 둘 다 있거나 둘 다 없음 |
 | bizPlaceNo | text | ✔ | `^\d{3}-\d{2}-\d{5}$` |
 | bizPlaceFile | file | 사장 ✔ | 사업장등록증 이미지. 관리자가 등록할 때는 생략할 수 있어요 |
 | storePhoto | file | | **매장 사진** (공개). `/uploads/stores/`에 저장하고 STORE.`photo_url`에 경로를 넣어요 (결정 S5) |
@@ -961,6 +966,8 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 | 관리자 | `APPROVED` (바로 공개, 결정 S3) | NULL |
 
 - 브랜드 칸은 없어요(결정 B1).
+- **좌표(`lat`·`lng`)는 받지 않아요.** 서버가 주소(쉼표 앞 도로명 주소)로 카카오 로컬 API를 불러 채워요. 키는 `application-local.properties`의 `kakao.rest-key`예요. 키가 없거나 결과가 없으면 둘 다 `null`로 저장하고, 매장 상세 지도만 안 보여요.
+- 수정(C-4)할 때는 주소가 바뀌었거나 좌표가 비어 있을 때만 다시 찾아요.
 
 | 오류 | 언제 |
 | --- | --- |
@@ -973,6 +980,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 
 - 칸은 C-3과 같아요. `bizPlaceFile`이나 `storePhoto`를 비우면 기존 파일을 그대로 써요.
 - **사장이 수정하면 어떤 칸을 고쳤든 `status = PENDING`** 이 돼요(결정 S1). 이미 `APPROVED`였어도 마찬가지예요.
+- 관리자가 수정하면 사장 매장이어도 상태가 그대로예요(결정 S3, 관리자 개편 11/23).
   - 이때 `reject_reason`은 비워요.
   - ⚠️ 매장이 다시 승인될 때까지 **그 매장의 테마도 손님 화면에서 모두 숨겨져요.** 손님 화면은 매장이 APPROVED인 테마만 보여 주기 때문이에요. 화면은 저장 전에 "수정하면 다시 승인을 받을 때까지 매장과 테마가 손님에게 보이지 않아요"라고 확인을 받아요.
 - 관리자가 수정하면 `APPROVED` 그대로예요(결정 S3).
@@ -1017,7 +1025,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 | title | text | ✔ | 1~50자 |
 | description | text | | 1300자 이내 |
 | difficulty | number | ✔ | 1~5 |
-| playMinutes | number | ✔ | 1~300 (제한 시간) |
+| playMinutes | number | ✔ | 1~720 (제한 시간, 분. 장시간 테마 때문에 11/23 300 → 720) |
 | minPeople, maxPeople | number | ✔ | 1 ≤ min ≤ max ≤ 20 |
 | price | number | ✔ | 0 이상, 1인 기준 가격 (인원별 가격은 받지 않음) |
 | bookingUrl | text | ✔ | `http://` 또는 `https://`로 시작, 500자 이내 |
@@ -1091,7 +1099,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 1. 값을 검사해요.
    - 형식은 `HH:mm`이어야 해요.
    - 한 유형 안에 같은 시각이 두 번 있으면 안 돼요.
-   - 한 유형 안에서 정렬했을 때 **앞뒤 회차 간격이 `play_minutes`보다 짧으면 안 돼요.**
+   - 회차가 겹치는 건 **허용**해요. 밀어내기 테마처럼 일부러 겹쳐 운영하는 경우가 있고, 시간표는 보여 주기만 해서예요(11/23).
    - 한 유형에 최대 20개까지예요.
 2. **한 트랜잭션**에서 그 테마의 TIME_SLOT을 지우고 다시 넣어요.
 
@@ -1101,7 +1109,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 
 | 오류 | 메시지 예 |
 | --- | --- |
-| 400 | `시간은 19:00처럼 입력해 주세요.` / `주중 13:00이 두 번 들어 있습니다.` / `주중 13:00과 13:30 회차가 겹칩니다 (플레이 70분).` |
+| 400 | `시간은 19:00처럼 입력해 주세요.` / `주중 13:00이 두 번 들어 있습니다.` / `주중 회차는 20개까지 넣을 수 있습니다.` |
 
 
 ### C · 관리자 (8)
@@ -1151,12 +1159,14 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
   "address": "서울 마포구 …", "phone": "02-000-0009", "websiteUrl": "https://example.com/mystery-hapjeong",
   "hours": "11:00 ~ 23:00", "intro": "합정역 7번 출구 2분.", "photoUrl": "/uploads/stores/9a2c.jpg",
   "bizPlaceNo": "222-33-44444", "hasBizPlaceFile": true,
-  "owner": { "memberId": 1, "loginId": "owner1", "nickname": "미스터리룸홍대", "bizNo": "111-22-33333" },
-  "status": "PENDING", "rejectReason": null, "createdAt": "2026-11-17T10:00:00"
+  "owner": { "memberId": 1, "loginId": "owner1", "nickname": "미스터리룸홍대", "bizNo": "111-22-33333",
+             "joinedAt": "2026-11-16T10:00:00" },
+  "status": "PENDING", "rejectReason": null, "createdAt": "2026-11-17T10:00:00", "approvedAt": null
 }
 ```
 
-화면은 서류 두 장을 나란히 보여 줘요.
+화면은 맨 위 한 줄(이름·상태·신청자·신청일 + 승인/반려) → ① 손님에게 보일 정보 → ② 서류 확인(사업장등록증 · 사업자등록증 나란히) 순서예요(관리자 개편 11/23). 매장 관리의 매장 상세도 이 응답을 써요.
+- `owner.joinedAt`은 사장 가입일(서류 칸), `approvedAt`은 처음 승인된 때예요(승인 전이면 `null`).
 
 | 서류 | 받는 곳 |
 | --- | --- |
@@ -1207,7 +1217,8 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 
 `GET /api/admin/themes/{themeId}` · ADMIN · 200 · 화면 S24 `admin-theme-detail.html`
 
-- 응답은 C-6 모양에 `store: { storeId, name, bizPlaceNo, phone, websiteUrl, status }`를 더한 거예요.
+- 응답은 C-6 모양에 `store: { storeId, name, bizPlaceNo, phone, websiteUrl, status, area, address, hours, ownerLoginId }`를 더한 거예요. `ownerLoginId`는 관리자가 등록한 매장이면 `null`이에요.
+- 화면은 맨 위 한 줄(이름·상태 / 매장·신청자·신청일·수정일 + 승인/반려) → ① 손님에게 보일 정보(포스터 + 4칸 숫자 + 예약 링크 + 소개) → ② 매장 순서예요(관리자 개편 11/23).
 - 상세에서 테마 사진을 함께 봐요(회의 v2-10).
 - 승인하기 전에 주소, 전화번호, 예약 링크가 맞는지 관리자가 직접 확인해요.
 
@@ -1463,7 +1474,7 @@ B-8은 손님 검색의 지역 칸·매장 목록의 지역 칩에 써요. 매�
 | S26 내 정보 탭 | `profile.html` | A·D | A-7, A-4, A-8, A-9, B-7, D-7, D-8 |
 | S27 매장 목록 | `stores.html` | B | B-8, B-9 |
 | S28 매장 상세 | `store.html` | B | B-10 |
-| 관리자 직접 등록 | `store-form.html?as=admin` 등 | C | C-1 ~ C-11 (관리자 권한) |
+| 매장 관리 (관리자) | `owner.html` · `owner-store.html` · `store-form.html` 등 (사장 화면을 같이 씀) | C | C-1 ~ C-11 (관리자 권한), C-14 · C-15 · A-11 (매장 상세의 서류) |
 
 ---
 
