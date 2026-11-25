@@ -17,13 +17,13 @@
 
 | 테이블 | 담당 | 바뀐 내용 | 근거 |
 | --- | --- | --- | --- |
-| MEMBER | A | 🗑️ `owner_type`, 🗑️ `status`(정지)<br>🆕 `biz_no`(사업자등록번호), 🆕 `biz_file_path`(사업자등록증) | 회의 v2-9, v3 피드백(사장 하나로, 가입 때 등록증) |
+| MEMBER | A | 🗑️ `owner_type`, 🗑️ `status`(정지)<br>🆕 `biz_no`(사업자등록번호), 🆕 `biz_file_path`(사업자등록증)<br>추가(11/24): `email`, `withdrawn_at`. 닉네임 UNIQUE를 탈퇴 안 한 회원 한정 인덱스로 변경 | 회의 v2-9, v3 피드백(사장 하나로, 가입 때 등록증), 이메일 인증·회원 탈퇴 |
 | GENRE | C | 그대로 | |
 | 🆕 HOLIDAY | C | 공휴일 날짜. 공휴일은 **주말 시간표**로 봄 | 결정 T1 |
 | 🆕 REGION | B | 큰 지역 코드 (서울·경기·인천…) | 결정 L1 |
 | 🆕 AREA | B | 세부 지역 코드 (홍대·강남…). STORE.`area`가 이 이름을 가리킴 | 결정 L1 |
 | 🗑️ BRAND | — | 테이블 삭제 (브랜드 정보를 받지 않음) | 결정 B1 |
-| STORE | C | 🗑️ `brand_id`<br>🆕 `biz_place_no`, `biz_place_file_path`, `status`, `website_url`, `hours`, `intro`, `photo_url`, `reject_reason`, `approved_at`<br>✏️ `phone`·`address` 필수, `area`는 AREA에 있는 이름만(FK) | 회의 v2-4·10, 결정 B2·S2·S4·S5·L1 |
+| STORE | C | 🗑️ `brand_id`<br>🆕 `biz_place_no`, `biz_place_file_path`, `status`, `website_url`, `hours`, `intro`, `photo_url`, `reject_reason`, `approved_at`<br>✏️ `phone`·`address` 필수, `area`는 AREA에 있는 이름만(FK)<br>변경(11/24~25): `status`에 `CLOSED`(폐업), `biz_place_no` 사업장 관리번호 `VARCHAR2(14)`·폐업 제외 UNIQUE 인덱스, `intro` 선택 | 회의 v2-4·10, 결정 B2·S2·S4·S5·L1, 매장 폐업 |
 | THEME | C | 🆕 `updated_at`, `review_count`·`rating_sum`(트리거), `reject_reason`<br>✏️ `source`에 `ADMIN` | 회의 v2-8, PM 미팅, 결정 S3·S4 |
 | THEME_GENRE | C | 그대로 | |
 | TIME_SLOT | C | ✏️ 날짜별 칸 → **주중/주말 반복 시간표**(`day_type` + `start_time`)<br>🗑️ `status` | v3 피드백 4, 결정 T2 |
@@ -41,6 +41,19 @@
 - 닉네임 **복사본 컬럼을 모두 없앴습니다.** 화면에 닉네임이 필요하면 MEMBER와 JOIN합니다.
 - 그래서 닉네임을 바꾸면 후기·파티·채팅 어디서나 바로 새 닉네임으로 보입니다.
 
+**11/24 이후 DB 변경 (기존 DB 적용 순서)**
+
+이미 만든 DB는 백엔드 레포 `src/main/resources/sql/`의 파일을 아래 순서로 실행. 새로 만드는 DB는 `create_tables.sql`에 반영 완료라 실행 불필요.
+
+| 순서 | 파일 | 내용 |
+| --- | --- | --- |
+| 1 | `alter_member_email.sql` | MEMBER `email` 추가, `member_email_uk` |
+| 2 | `alter_member_withdraw.sql` | MEMBER `withdrawn_at` 추가, 닉네임 UNIQUE 인덱스 변경, `member_owner_ck` 변경 |
+| 3 | `alter_store_closed.sql` | STORE `status`에 `CLOSED`, `store_biz_place_uk`를 폐업 제외 인덱스로 변경 |
+| 4 | `alter_store_form.sql` | STORE `biz_place_no` 12 → 14바이트, `intro` NULL 허용 |
+
+- 이메일 인증번호는 서버 메모리에 보관. 테이블 없음.
+
 ---
 
 ## 2. ERD 다이어그램
@@ -51,11 +64,13 @@ erDiagram
         NUMBER member_id PK
         VARCHAR2 login_id UK
         VARCHAR2 password
-        VARCHAR2 nickname UK
+        VARCHAR2 nickname UK "탈퇴 회원 제외"
         VARCHAR2 role "USER/OWNER/ADMIN"
+        VARCHAR2 email UK "NULL 허용"
         VARCHAR2 biz_no UK "사장만"
         VARCHAR2 biz_file_path "사장만"
         DATE created_at
+        DATE withdrawn_at "NULL=회원"
     }
     MEMBER_GENRE {
         NUMBER id PK
@@ -94,9 +109,9 @@ erDiagram
         VARCHAR2 photo_url
         NUMBER lat
         NUMBER lng
-        VARCHAR2 biz_place_no UK
+        VARCHAR2 biz_place_no UK "폐업 매장 제외"
         VARCHAR2 biz_place_file_path
-        VARCHAR2 status "PENDING/APPROVED/REJECTED"
+        VARCHAR2 status "PENDING/APPROVED/REJECTED/CLOSED"
         VARCHAR2 reject_reason
         DATE approved_at
         DATE created_at
@@ -222,20 +237,43 @@ HOLIDAY는 다른 테이블과 FK로 이어지지 않습니다. 날짜가 주중
 | member_id | NUMBER | ✔ | | PK, `sq_member` | 회원번호 | |
 | login_id | VARCHAR2(30) | ✔ | | UK | 영문·숫자 아이디 | |
 | password | VARCHAR2(60) | ✔ | | | BCrypt 해시. 응답에 절대 넣지 않음 | |
-| nickname | VARCHAR2(60) | ✔ | | UK | 한글 20자. 내 정보에서 바꿀 수 있고, 바꾸면 모든 화면에 바로 반영 | |
+| nickname | VARCHAR2(60) | ✔ | | UNIQUE 인덱스 `member_nickname_uk` (탈퇴 회원 제외) | 한글 20자. 내 정보에서 바꿀 수 있고, 바꾸면 모든 화면에 바로 반영 | 변경 |
 | role | VARCHAR2(10) | ✔ | | CHECK `USER`/`OWNER`/`ADMIN` | | |
+| email | VARCHAR2(100) | | | UK `member_email_uk` | 소문자 저장. 가입 시 필수(서버 검사), 11/24 이전 가입 회원은 NULL. NULL 중복 허용 | 추가 |
 | biz_no | VARCHAR2(12) | | | UK | 사업자등록번호 `123-45-67890`. **사장만** 필수 | 🆕 |
 | biz_file_path | VARCHAR2(500) | | | | 사업자등록증 경로(비공개 폴더). **사장만** 필수 | 🆕 |
 | created_at | DATE | ✔ | SYSDATE | | 가입일 | |
+| withdrawn_at | DATE | | | | 탈퇴 일시. NULL이면 탈퇴 안 함 | 추가 |
 
-**CHECK `member_owner_ck`**: 사장이면 두 값이 모두 있어야 하고, 사장이 아니면 둘 다 비어 있어야 합니다.
+**닉네임 UNIQUE 인덱스** (탈퇴 회원은 모두 "탈퇴한 회원"이라 중복 검사에서 제외)
 
 ```sql
-(role = 'OWNER' AND biz_no IS NOT NULL AND biz_file_path IS NOT NULL)
+CREATE UNIQUE INDEX member_nickname_uk ON member (CASE WHEN withdrawn_at IS NULL THEN nickname END);
+```
+
+**CHECK `member_owner_ck`**: 사장이면 두 값 모두 필수, 사장이 아니면 둘 다 NULL. 탈퇴한 사장은 예외(탈퇴 시 둘 다 삭제).
+
+```sql
+(role = 'OWNER' AND (withdrawn_at IS NOT NULL OR (biz_no IS NOT NULL AND biz_file_path IS NOT NULL)))
 OR (role <> 'OWNER' AND biz_no IS NULL AND biz_file_path IS NULL)
 ```
 
 - 사장 계정 자체는 승인받지 않습니다. 가입하면 바로 로그인할 수 있습니다. 매장을 등록해서 승인받기 전에는 할 수 있는 일이 없습니다(결정 M1).
+
+**탈퇴 처리 (API A-31)**: 행 삭제 없이 익명화.
+
+| 컬럼 | 탈퇴 후 값 |
+| --- | --- |
+| login_id | `withdrawn#{member_id}` (가입 규칙상 재사용 불가 형식) |
+| nickname | `탈퇴한 회원` (가입·닉네임 변경 시 사용 불가) |
+| email, biz_no, biz_file_path | NULL |
+| password | 임의 값의 BCrypt 해시 |
+| withdrawn_at | 탈퇴 일시 |
+
+- 후기·채팅은 FK 유지, "탈퇴한 회원"으로 표시.
+- WISHLIST·MEMBER_GENRE 행은 삭제. 안 끝난 파티는 방장이면 `DELETED`, 참여자면 PARTY_MEMBER 행 삭제.
+- 매장이 1개라도 있는 사장(폐업 포함)과 관리자는 탈퇴 불가.
+- 같은 아이디·이메일·닉네임으로 재가입 가능.
 
 ### 3-2. GENRE — 장르 코드 (C)
 
@@ -283,6 +321,7 @@ OR (role <> 'OWNER' AND biz_no IS NULL AND biz_file_path IS NULL)
 - 사장이 등록하거나 수정하면 `PENDING`이 됩니다.
 - 관리자가 사업장등록증을 확인하고 승인하면 `APPROVED`가 되고, 그때부터 손님에게 보입니다.
 - 반려하면 `REJECTED`가 되고, 관리자가 쓴 사유가 사장에게 보입니다.
+- 폐업하면 `CLOSED`. 되돌릴 수 없음(11/24 추가, API C-20).
 
 | 컬럼 | 타입 | 필수 | 기본값 | 규칙 | 설명 | 변경 |
 | --- | --- | :-: | --- | --- | --- | :-: |
@@ -294,12 +333,12 @@ OR (role <> 'OWNER' AND biz_no IS NULL AND biz_file_path IS NULL)
 | phone | VARCHAR2(20) | ✔ | | | 매장 전화 | ✏️ 필수 |
 | website_url | VARCHAR2(500) | ✔ | | | **매장 웹사이트**. 매장 상세 "매장 웹사이트 ↗" 버튼. `http(s)://`로 시작 | 🆕 |
 | hours | VARCHAR2(150) | ✔ | | | 영업시간 한 줄 `10:00 ~ 23:00 (연중무휴)` | 🆕 |
-| intro | VARCHAR2(600) | ✔ | | | 매장 소개 (한글 200자) | 🆕 |
+| intro | VARCHAR2(600) | | | | 매장 소개 (한글 200자). 선택(11/25 NOT NULL 해제) | 변경 |
 | photo_url | VARCHAR2(500) | | | | **매장 사진** 경로(공개 폴더) `/uploads/stores/uuid.jpg`. 없으면 NULL | 🆕 |
 | lat / lng | NUMBER(9,6) | | | | 위도·경도 (지도, 선택 기능) | |
-| biz_place_no | VARCHAR2(12) | ✔ | | UK | 사업장 등록번호. 매장마다 하나 | 🆕 |
-| biz_place_file_path | VARCHAR2(500) | | | | 사업장등록증 경로(비공개 폴더) | 🆕 |
-| status | VARCHAR2(10) | ✔ | `'PENDING'` | CHECK `PENDING`/`APPROVED`/`REJECTED` | 매장 승인 상태 | 🆕 |
+| biz_place_no | VARCHAR2(14) | ✔ | | UNIQUE 인덱스 `store_biz_place_uk` (폐업 매장 제외) | **사업장 관리번호** `000-00-00000-0` (사업자등록번호 10자리 + 1자리). 기존 더미는 10자리 | 변경 |
+| biz_place_file_path | VARCHAR2(500) | | | | 사업장 증빙 서류 경로(비공개 폴더) | 추가 |
+| status | VARCHAR2(10) | ✔ | `'PENDING'` | CHECK `PENDING`/`APPROVED`/`REJECTED`/`CLOSED` | 매장 승인 상태. `CLOSED` = 폐업 | 변경 |
 | reject_reason | VARCHAR2(900) | | | | **반려 사유**. 관리자가 쓰고 사장에게 보임 (한글 300자) | 🆕 |
 | approved_at | DATE | | | CHECK `status <> 'APPROVED' OR approved_at IS NOT NULL` | **처음 승인된 때**. 손님 화면 매장 NEW(30일) 기준. 수정 뒤 다시 승인돼도 안 바뀜. 관리자 직접 등록이면 등록한 때 | 🆕 |
 | created_at | DATE | ✔ | SYSDATE | | 신청일 | |
@@ -313,10 +352,19 @@ store_reject_ck   : status <> 'REJECTED' OR reject_reason IS NOT NULL      -- �
 store_approved_ck : status <> 'APPROVED' OR approved_at IS NOT NULL        -- 승인되면 승인일 필수
 ```
 
+**사업장 관리번호 UNIQUE 인덱스**: 폐업 매장의 번호는 NULL로 계산되어 제외. 같은 번호로 새 매장 등록 가능.
+
+```sql
+CREATE UNIQUE INDEX store_biz_place_uk ON store (CASE WHEN status <> 'CLOSED' THEN biz_place_no END);
+```
+
+- 함수 기반 인덱스가 걸린 컬럼은 길이 변경 불가(ORA-30556). 길이 변경 시 인덱스 삭제 후 재생성(`alter_store_form.sql`).
+
 - **수정하면 무조건 다시 승인 대기**입니다(결정 S1). 이미 `APPROVED`인 매장을 사장이 고쳐도 `PENDING`으로 돌아갑니다. 관리자가 직접 등록·수정한 매장은 바로 `APPROVED`입니다(결정 S3).
 - ⚠️ 그 결과, 승인된 매장을 수정하는 순간 **그 매장의 테마들도 손님 화면에서 사라졌다가** 다시 승인되면 돌아옵니다. 손님 화면에는 매장이 APPROVED인 테마만 보이기 때문이에요. 사장 화면에서 수정하기 전에 이 점을 안내해야 합니다.
 - 다시 `PENDING`이 될 때 `reject_reason`은 비웁니다. 사장은 고치는 동안에는 이전 사유를 볼 수 있습니다.
 - **삭제하지 않습니다.** 테마·후기·파티가 매장을 참조하기 때문에 `status`로만 관리합니다.
+- **폐업(`CLOSED`)**: `APPROVED` 매장만 가능. 폐업 시 그 매장의 모든 테마를 `CLOSED`로 변경(한 트랜잭션). 폐업 매장·테마는 수정 불가, 사장·관리자 화면에서 조회만 가능. 손님 화면에서는 제외.
 
 ### 3-5. THEME — 테마 (C)
 
@@ -449,8 +497,9 @@ store_approved_ck : status <> 'APPROVED' OR approved_at IS NOT NULL        -- �
 - **현재 인원** = PARTY_MEMBER 가운데 `status = 'JOINED'`인 줄 수입니다. 따로 저장하는 컬럼은 없습니다.
 - **삭제는 실제로 지우지 않고** `status = 'DELETED'`로 바꿉니다(결정 P1). 참여자와 채팅 기록은 그대로 남습니다.
 - `DELETED` 파티는 **모든 화면에서 숨깁니다**: 목록, 방, 내 채팅. 접근하면 404입니다.
-- 파티 목록에는 `RECRUITING`이면서 기한이 지나지 않은 파티만 나옵니다.
-- 기한이 지난 `RECRUITING` 파티는 스케줄러가 `CLOSED`로 바꿉니다([5-3](#5-3-모집-기한-자동-마감-스케줄러)).
+- 파티 목록 조건: `status IN ('RECRUITING', 'FULL')`, 기한 전, 테마 `OPEN`, 매장 `APPROVED` (11/23·11/25 변경).
+- 기한이 지난 `RECRUITING`·`FULL` 파티는 스케줄러가 `CLOSED`로 바꿉니다([5-3](#5-3-모집-기한-자동-마감-스케줄러)).
+- `play_at`이 지난 파티는 채팅 읽기 전용(저장 컬럼 없음, 요청 시 계산).
 
 ### 3-13. PARTY_MEMBER — 파티 참여자 (A)
 
@@ -502,7 +551,11 @@ stateDiagram-v2
     PENDING --> REJECTED: 관리자 반려 + 사유 (C-16)
     REJECTED --> PENDING: 사장이 고쳐서 다시 신청 (C-4)
     APPROVED --> PENDING: 사장이 수정 (C-4)
+    APPROVED --> CLOSED: 폐업 (C-20)
+    CLOSED --> [*]
 ```
+
+`CLOSED`에서 다른 상태로 가는 경로 없음.
 
 ### 4-2. THEME.status
 
@@ -516,7 +569,11 @@ stateDiagram-v2
     REJECTED --> PENDING: 고쳐서 다시 신청 (C-8)
     OPEN --> CLOSED: 운영 종료 (C-9)
     CLOSED --> OPEN: 운영 재개 (C-9)
+    PENDING --> CLOSED: 매장 폐업 (C-20)
+    REJECTED --> CLOSED: 매장 폐업 (C-20)
 ```
+
+- 매장 폐업으로 `CLOSED`가 된 테마는 운영 재개 불가(매장 수정 차단).
 
 손님 화면(목록·상세·검색·추천·매장)에는 **`THEME.status = 'OPEN'`이고 `STORE.status = 'APPROVED'`인 테마만** 나옵니다.
 
@@ -541,6 +598,7 @@ stateDiagram-v2
 | PARTY_MEMBER.status | JOINED / KICKED | 강퇴(A-18)하면 KICKED |
 | REVIEW.status | VISIBLE / HIDDEN | 없음. 숨김은 관리자 처리(나중 기능) |
 | MEMBER.role | USER / OWNER / ADMIN | 가입(A-1, A-2) 때 정해지고 바뀌지 않음 |
+| MEMBER.withdrawn_at | NULL / 일시 | 탈퇴(A-31) 시 기록. 되돌리기 없음 |
 
 ---
 
@@ -559,14 +617,15 @@ stateDiagram-v2
 
 ### 5-3. 모집 기한 자동 마감 (스케줄러)
 
-Spring `@Scheduled`로 5분마다 실행합니다(A 담당).
+Spring `@Scheduled`로 매일 03:00(Asia/Seoul) 실행(A 담당, 11/23 변경).
 
 ```sql
 UPDATE party SET status = 'CLOSED'
- WHERE status = 'RECRUITING' AND deadline_at <= SYSDATE
+ WHERE status IN ('RECRUITING', 'FULL') AND deadline_at <= SYSDATE
 ```
 
-스케줄러가 돌기 전 몇 분 사이에도 기한이 지난 파티가 보이면 안 됩니다. 그래서 목록 API와 참여 API도 `deadline_at > SYSDATE`를 직접 검사합니다.
+- 정원 마감(`FULL`) 파티도 기한이 지나면 `CLOSED`.
+- 실행 전까지는 목록·참여 API가 `deadline_at > SYSDATE`를 직접 검사, 응답 상태도 `CLOSED`로 표시.
 
 ---
 
@@ -577,7 +636,7 @@ UPDATE party SET status = 'CLOSED'
 | 테마 사진 | 테마 등록·수정 (C-7, C-8) | `uploads/posters/` | **공개** `/uploads/posters/**` | THEME.poster_url |
 | 매장 사진 🆕 | 매장 등록·수정 (C-3, C-4) | `uploads/stores/` | **공개** `/uploads/stores/**` | STORE.photo_url |
 | 사업자등록증 | 사장 가입 (A-2) | `private/biz/` | **비공개**, 관리자 API(A-11)로만 | MEMBER.biz_file_path |
-| 사업장등록증 | 매장 등록·수정 (C-3, C-4) | `private/biz-place/` | **비공개**, 관리자 API(C-15)로만 | STORE.biz_place_file_path |
+| 사업장 증빙 서류 | 매장 등록·수정 (C-3, C-4) | `private/biz-place/` | **비공개**, 관리자 API(C-15)로만 | STORE.biz_place_file_path |
 
 - DB에는 파일이 아니라 **경로만** 저장합니다.
 - 받는 형식은 jpg·png·webp이고 5MB 이하만 받습니다. 확장자만 보지 말고 실제 파일 형식도 확인합니다.
