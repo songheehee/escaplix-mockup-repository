@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="slide.css">
+<style>
+.cols{position:absolute;left:80px;right:80px;top:210px;bottom:90px;display:grid;grid-template-columns:repeat(5,1fr);gap:28px}
+.col{background:#eef0fb;border-radius:28px;padding:30px 18px 24px;display:flex;flex-direction:column;align-items:center}
+.col h3{margin:0 0 18px;font-size:28px;font-weight:700;color:#283a7a}
+.items{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;align-items:center;width:100%}
+.it{display:flex;flex-direction:column;align-items:center;gap:10px}
+.it img{height:92px;width:150px;object-fit:contain}
+.it.sm img{height:66px}
+.it span{font-size:16px;color:#3b4252;text-align:center;line-height:1.35}
+.it span em{font-style:normal;color:#8a90a6;font-size:14px;display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px 8px;width:100%;align-content:space-evenly;flex:1}
+.word{height:66px;display:flex;align-items:center;justify-content:center;font:800 26px/1 "Pretendard",sans-serif;color:#283a7a}
+.kakao{width:96px;height:66px;border-radius:14px;background:#FFCD00;display:flex;align-items:center;justify-content:center}
+.kakao img{height:40px!important;width:60px!important}
+</style></head>
+<body><div class="slide">
+  <div class="part">PART 02</div>
+  <div class="title">적용 기술</div>
+  <div class="cols">
+    <div class="col"><h3>FE</h3><div class="items">
+      <div class="it"><img src="logos/html5.svg"><span>HTML5</span></div>
+      <div class="it"><img src="logos/css3.svg"><span>CSS3</span></div>
+      <div class="it"><img src="logos/javascript.svg"><span>JavaScript<em>ES6 · Vanilla JS</em></span></div>
+    </div></div>
+    <div class="col"><h3>BE</h3><div class="items">
+      <div class="it"><img src="logos/java.svg"><span>Java - jdk21</span></div>
+      <div class="it"><img src="logos/si-springboot-c.svg"><span>Spring Boot - v4.1.2<em>Spring Web MVC</em></span></div>
+      <div class="it"><img src="logos/hibernate.svg"><span>Spring Data JPA<em>Hibernate</em></span></div>
+      <div class="it"><img src="logos/si-jsonwebtokens-c.svg" style="height:70px"><span>JWT - jjwt 0.12.6<em>Access + Refresh Token</em></span></div>
+    </div></div>
+    <div class="col"><h3>DB / Server</h3><div class="items">
+      <div class="it"><img src="logos/oracle.svg" style="width:230px"><span>Oracle Database<em>11g XE</em></span></div>
+      <div class="it"><img src="logos/tomcat.svg"><span>Apache Tomcat<em>Spring Boot 내장 · :8081</em></span></div>
+      <div class="it"><img src="logos/vscode.svg" style="height:76px"><span>Live Server<em>정적 파일 · :5500</em></span></div>
+      <div class="it"><img src="logos/gradle.svg" style="height:70px"><span>Gradle</span></div>
+    </div></div>
+    <div class="col"><h3>External APIs</h3><div class="items">
+      <div class="it"><img src="logos/si-gmail-c.svg" style="height:70px"><span>Gmail SMTP<em>이메일 인증번호</em></span></div>
+      <div class="it"><div class="kakao"><img src="logos/si-kakao-c.svg"></div><span>Kakao Local API<em>주소 → 좌표</em></span></div>
+      <div class="it"><div class="kakao"><img src="logos/si-kakaotalk-c.svg"></div><span>Kakao 우편번호<em>주소 검색</em></span></div>
+      <div class="it"><img src="logos/si-openstreetmap-c.svg" style="height:70px"><span>OpenStreetMap<em>매장 지도</em></span></div>
+    </div></div>
+    <div class="col"><h3>Tools</h3><div class="grid2">
+      <div class="it sm"><img src="logos/github.svg"><span>GitHub</span></div>
+      <div class="it sm"><img src="logos/notion.svg"><span>Notion</span></div>
+      <div class="it sm"><img src="logos/intellij.svg"><span>IntelliJ IDEA</span></div>
+      <div class="it sm"><img src="logos/vscode.svg"><span>VS Code</span></div>
+      <div class="it sm"><img src="logos/sqldeveloper.svg"><span>SQL Developer</span></div>
+      <div class="it sm"><img src="logos/postman.svg"><span>Postman</span></div>
+      <div class="it sm"><img src="logos/git.svg"><span>Git</span></div>
+      <div class="it sm"><img src="logos/si-claude-c.svg"><span>Claude Code</span></div>
+    </div></div>
+  </div>
+</div></body></html>

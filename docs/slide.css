@@ -1,0 +1,7 @@
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff}
+body{font-family:"Pretendard","Pretendard Variable","Noto Sans KR","Malgun Gothic",sans-serif;color:#1f2433;-webkit-font-smoothing:antialiased}
+.slide{position:relative;width:1920px;height:1080px;overflow:hidden;background:#fff}
+.part{position:absolute;left:80px;top:56px;font-size:24px;font-weight:700;color:#b9bfd3;letter-spacing:.02em}
+.title{position:absolute;left:80px;top:88px;font-size:52px;font-weight:800;color:#283a7a;letter-spacing:-.02em}
+.sub{position:absolute;left:300px;top:112px;font-size:18px;color:#8a90a6;font-weight:500}

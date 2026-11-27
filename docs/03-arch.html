@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="slide.css">
+<style>
+.abs{position:absolute}
+.card{position:absolute;background:#fff;border:1.5px solid #2a2f3d;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}
+.card b{font-size:19px;color:#1f2433}
+.card small{font-size:13px;color:#7b8190;line-height:1.35}
+.logos{display:flex;gap:14px;align-items:center;justify-content:center}
+.logos img{height:46px}
+.zone{position:absolute;border-radius:6px}
+.zlabel{position:absolute;font-size:15px;font-weight:700}
+.lbl{position:absolute;font-size:13px;color:#5b6275;background:#fff;padding:0 4px;line-height:1.3;text-align:center}
+.layer{background:#fff;border:1px solid #c9cdd8;border-radius:5px;padding:6px 10px;font-size:13.5px;color:#2b3142;width:100%;text-align:left}
+.layer em{font-style:normal;color:#8a90a6;font-size:12.5px}
+.ext{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;width:200px}
+.ext img{height:44px}
+.ext b{font-size:16px;color:#1f2433}
+.ext small{font-size:12.5px;color:#8a90a6}
+.kbox{width:54px;height:44px;border-radius:10px;background:#FFCD00;display:flex;align-items:center;justify-content:center}
+.kbox img{height:26px}
+.tool{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;color:#5b6275}
+.tool img{height:50px}
+svg#ar{position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none}
+</style></head>
+<body><div class="slide">
+  <div class="part">PART 02</div>
+  <div class="title">시스템 아키텍처</div>
+
+  <!-- 로컬 개발 서버 경계 -->
+  <div class="zone" style="left:640px;top:220px;width:900px;height:720px;border:1.5px solid #2a2f3d"></div>
+  <div class="abs" style="left:640px;top:220px;width:44px;height:40px;border-right:1.5px solid #2a2f3d;border-bottom:1.5px solid #2a2f3d;display:flex;align-items:center;justify-content:center">
+    <svg width="24" height="22" viewBox="0 0 24 22" fill="none" stroke="#2a2f3d" stroke-width="1.6"><rect x="2" y="2" width="20" height="13" rx="1.5"/><path d="M8 20h8M12 15v5"/></svg></div>
+  <div class="zlabel" style="left:696px;top:229px;color:#2a2f3d">Local Server (개발 PC · Windows)</div>
+
+  <!-- WAS 영역 -->
+  <div class="zone" style="left:680px;top:290px;width:820px;height:400px;border:1.5px solid #7cb342;background:#fbfdf7"></div>
+  <div class="zlabel" style="left:696px;top:300px;color:#5b8f22">WAS · Spring Boot Application</div>
+  <div class="zone" style="left:700px;top:340px;width:250px;height:330px;border:1.5px dashed #e05a4f"></div>
+  <div class="zlabel" style="left:712px;top:348px;color:#d0473c;font-size:13px">Security Layer</div>
+  <div class="abs" style="left:716px;top:378px;width:218px;display:flex;flex-direction:column;gap:8px">
+    <div class="layer"><b>CORS</b><br><em>Origin :5500 · credentials</em></div>
+    <div class="layer"><b>AuthInterceptor</b><br><em>JWT 검증 · @Auth 역할</em></div>
+    <div class="layer"><b>Refresh Token</b><br><em>HttpOnly 쿠키 · 회전</em></div>
+    <div class="layer"><b>BCrypt</b><br><em>비밀번호 해시</em></div>
+  </div>
+  <div class="zone" style="left:970px;top:340px;width:510px;height:330px;border:1.5px dashed #9aa3b5"></div>
+  <div class="zlabel" style="left:982px;top:348px;color:#6b7280;font-size:13px">API Server · Embedded Tomcat :8081</div>
+  <div class="card" style="left:990px;top:378px;width:220px;height:272px;border-color:#c9cdd8;gap:10px;padding:14px">
+    <div class="logos"><img src="logos/si-springboot-c.svg"><img src="logos/java.svg"></div>
+    <b>REST API</b><small>Spring Boot 4.1.2 · Java 21<br>74 endpoints</small>
+    <div class="logos"><img src="logos/tomcat.svg" style="height:40px"></div>
+  </div>
+  <div class="abs" style="left:1226px;top:378px;width:236px;display:flex;flex-direction:column;gap:6px">
+    <div class="layer"><b>Controller</b> <em>@Valid · DTO</em></div>
+    <div class="layer"><b>Service</b> <em>@Transactional</em></div>
+    <div class="layer"><b>Repository</b> <em>Spring Data JPA</em></div>
+    <div class="layer"><b>@Scheduled</b> <em>파티 기한 마감</em></div>
+    <div class="layer"><b>FileStorage</b> <em>/uploads · private</em></div>
+    <div class="layer"><b>Mailer · Geocoder</b> <em>외부 API</em></div>
+  </div>
+
+  <!-- DB 영역 -->
+  <div class="zone" style="left:680px;top:720px;width:820px;height:190px;border:1.5px solid #7cb342"></div>
+  <div class="zlabel" style="left:696px;top:730px;color:#5b8f22">Data Layer</div>
+  <div class="zone" style="left:960px;top:756px;width:330px;height:138px;border:1.5px dashed #c24bd0"></div>
+  <div class="zlabel" style="left:972px;top:762px;color:#a93bb6;font-size:13px">DB · :1521</div>
+  <div class="card" style="left:985px;top:786px;width:280px;height:94px;flex-direction:row;gap:16px;border-color:#c9cdd8">
+    <img src="logos/oracle.svg" style="width:110px"><div style="text-align:left"><b style="font-size:16px">Oracle 11g XE</b><br><small>테이블 16개 · 트리거 2개<br>ojdbc17 · JPA/Hibernate</small></div>
+  </div>
+  <div class="card" style="left:716px;top:786px;width:220px;height:94px;border-color:#c9cdd8">
+    <svg width="34" height="28" viewBox="0 0 34 28" fill="none" stroke="#6b7280" stroke-width="1.8"><path d="M2 5a2 2 0 0 1 2-2h8l3 3h15a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/></svg>
+    <b style="font-size:15px">File Storage</b><small>uploads/ 공개 사진 · private/ 서류</small>
+  </div>
+
+  <!-- 사용자 · 웹 클라이언트 -->
+  <div class="abs" style="left:100px;top:470px;width:150px;text-align:center">
+    <svg width="64" height="70" viewBox="0 0 64 70" fill="none" stroke="#2a2f3d" stroke-width="2.4"><circle cx="32" cy="20" r="14"/><path d="M6 66c0-15 11.6-26 26-26s26 11 26 26"/></svg>
+    <div style="font-size:20px;font-weight:700;margin-top:8px">User Access</div>
+    <div style="font-size:13px;color:#7b8190">손님 · 사장 · 관리자</div>
+  </div>
+  <div class="card" style="left:320px;top:430px;width:230px;height:200px">
+    <div class="logos"><img src="logos/html5.svg" style="height:42px"><img src="logos/css3.svg" style="height:42px"><img src="logos/javascript.svg" style="height:38px"></div>
+    <b>Web Client</b><small>Vanilla JS · Chrome · Live Server :5500<br>Access Token → sessionStorage<br>Refresh Token → HttpOnly 쿠키</small>
+  </div>
+
+  <!-- 외부 API -->
+  <div class="zlabel" style="left:1650px;top:228px;font-size:22px;color:#1f2433">External APIs</div>
+  <div class="ext" style="left:1630px;top:290px"><img src="logos/si-gmail-c.svg"><b>Gmail SMTP</b><small>이메일 인증번호 발송</small></div>
+  <div class="ext" style="left:1630px;top:420px"><div class="kbox"><img src="logos/si-kakao-c.svg"></div><b>Kakao Local API</b><small>매장 주소 → 위도·경도</small></div>
+  <div class="ext" style="left:1630px;top:560px"><div class="kbox"><img src="logos/si-kakaotalk-c.svg"></div><b>Kakao 우편번호</b><small>매장 등록 주소 검색</small></div>
+  <div class="ext" style="left:1630px;top:690px"><img src="logos/si-openstreetmap-c.svg"><b>OpenStreetMap</b><small>매장 상세 지도</small></div>
+
+  <!-- 개발 흐름 -->
+  <div class="tool" style="left:110px;top:832px"><img src="logos/vscode.svg">VS Code</div>
+  <div class="tool" style="left:262px;top:832px"><img src="logos/github.svg">GitHub</div>
+  <div class="tool" style="left:252px;top:952px"><img src="logos/intellij.svg">IntelliJ</div>
+  <div class="tool" style="left:410px;top:832px"><img src="logos/notion.svg">Notion</div>
+  <div class="tool" style="left:110px;top:952px"><img src="logos/sqldeveloper.svg">SQL Dev</div>
+  <div class="tool" style="left:410px;top:952px"><img src="logos/postman.svg">Postman</div>
+  <div class="abs" style="left:100px;top:1040px;width:400px;text-align:center;font-size:20px;font-weight:700">Development Workflow</div>
+
+  <svg id="ar">
+    <defs>
+      <marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4b5263"/></marker>
+      <marker id="mb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4a90e2"/></marker>
+      <marker id="mr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#d0473c"/></marker>
+    </defs>
+    <g fill="none" stroke="#4b5263" stroke-width="1.8">
+      <!-- 사용자 → 웹 -->
+      <path d="M250 530 H326" marker-end="url(#m)"/>
+      <!-- 웹 ↔ WAS (REST) -->
+      <path d="M550 520 H700" marker-end="url(#m)" marker-start="url(#m)"/>
+      <!-- 보안 → 서버 -->
+      <path d="M950 510 H988" marker-end="url(#m)"/>
+      <!-- 서버 → DB (JPA) -->
+      <path d="M1100 650 V784" marker-end="url(#m)" marker-start="url(#m)"/>
+      <!-- 서버 → 파일 -->
+      <path d="M1000 650 C 900 700 860 740 840 784" marker-end="url(#m)"/>
+      <!-- WAS → Gmail, Kakao Local -->
+      <path d="M1500 440 C 1570 420 1590 340 1650 330" marker-end="url(#m)"/>
+      <path d="M1500 470 C 1570 470 1600 465 1660 460" marker-end="url(#m)"/>
+      <!-- 브라우저 → 우편번호, OSM : 위로 돌아감 -->
+      <path d="M440 440 V180 H1590 V600 H1662" marker-end="url(#m)" stroke-dasharray="6 5"/>
+      <path d="M1590 600 V730 H1660" marker-end="url(#m)" stroke-dasharray="6 5"/>
+    </g>
+    <!-- 개발 흐름 -->
+    <g fill="none" stroke-width="1.8">
+      <path d="M170 860 H258" stroke="#d0473c" marker-end="url(#mr)"/>
+      <path d="M287 955 V914" stroke="#d0473c" marker-end="url(#mr)"/>
+      <path d="M408 860 H322" stroke="#9aa3b5" stroke-dasharray="5 4" marker-end="url(#m)"/>
+      <path d="M290 826 V700 H400 V626" stroke="#4a90e2" marker-end="url(#mb)"/>
+      <path d="M318 840 C 500 800 560 760 700 640" stroke="#d0473c" marker-end="url(#mr)"/>
+    </g>
+  </svg>
+  <div class="lbl" style="left:560px;top:478px;width:130px">REST API<br>HTTP · JSON<br>Bearer JWT</div>
+  <div class="lbl" style="left:1110px;top:700px">JDBC</div>
+  <div class="lbl" style="left:720px;top:168px;font-size:12.5px">브라우저에서 바로 호출 (주소 검색 · 지도)</div>
+  <div class="lbl" style="left:180px;top:830px;font-size:12px">push</div>
+  <div class="lbl" style="left:300px;top:700px;font-size:12px;color:#4a90e2">pull · Live Server 실행</div>
+  <div class="lbl" style="left:500px;top:770px;font-size:12px;color:#d0473c">pull · bootRun</div>
+  <div class="lbl" style="left:338px;top:870px;font-size:12px">회의록 · 일정</div>
+</div></body></html>

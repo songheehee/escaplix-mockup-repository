@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="slide.css">
+<style>
+.tb{position:absolute;width:250px;background:#fff;border:1px solid #9aa3b5;border-radius:3px;box-shadow:2px 3px 0 rgba(40,50,80,.12);font-size:12.5px;overflow:hidden}
+.tb .h{height:26px;line-height:26px;padding:0 8px;font-weight:700;font-size:13px;border-bottom:1px solid #9aa3b5;display:flex;align-items:center;gap:6px}
+.tb .h svg{flex:0 0 13px}
+.tb .r{height:18px;line-height:18px;padding:0 8px;display:flex;align-items:center;gap:6px;white-space:nowrap;color:#222}
+.tb .r i{flex:0 0 11px;height:11px;display:inline-block}
+.tb .r .t{color:#6b7280;margin-left:2px}
+.tb .f{height:18px;line-height:18px;background:#e6e8ee;border-top:1px solid #c9cdd6;padding:0 8px;color:#7b8190;font-size:11px}
+.pk{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Ccircle cx='4' cy='4' r='3' fill='%23f2c230' stroke='%23a07800'/%3E%3Cpath d='M6 6 L11 11 M8.5 8.5 L10 7 M9.8 9.8 L11 8.6' stroke='%23a07800' stroke-width='1.6'/%3E%3C/svg%3E") center/contain no-repeat}
+.fk{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M6 1 L11 6 L6 11 L1 6Z' fill='%23e0464e'/%3E%3C/svg%3E") center/contain no-repeat}
+.nn{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M6 1 L11 6 L6 11 L1 6Z' fill='%2342a5d8'/%3E%3C/svg%3E") center/contain no-repeat}
+.nu{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M6 1.5 L10.5 6 L6 10.5 L1.5 6Z' fill='none' stroke='%2342a5d8' stroke-width='1.3'/%3E%3C/svg%3E") center/contain no-repeat}
+#lines{position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none}
+.legend{position:absolute;left:1100px;top:640px;width:590px;border:1px solid #d5d9e6;border-radius:14px;padding:18px 22px;background:#f7f8fc;font-size:14px;color:#3b4252}
+.legend b{display:block;font-size:16px;color:#26335e;margin-bottom:10px}
+.legend .row{display:flex;align-items:center;gap:12px;margin:7px 0}
+.legend svg{flex:0 0 70px}
+.legend .icons{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #e1e4ee}
+.legend .icons span{display:flex;align-items:center;gap:6px}
+.legend .icons i{width:12px;height:12px;display:inline-block}
+.legend .dom{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.legend .dom span{display:flex;align-items:center;gap:6px;font-size:13px}
+.legend .dom em{width:14px;height:14px;border:1px solid #9aa3b5;border-radius:2px}
+</style></head>
+<body><div class="slide" id="s">
+  <div class="part">PART 02</div>
+  <div class="title">DB 설계</div>
+  <div class="sub">Oracle 11g XE · 테이블 16개 · IE 표기법 (점선 = 비식별 관계)</div>
+  <svg id="lines"></svg>
+  <div class="legend">
+    <b>표기법</b>
+    <div class="row"><svg width="70" height="16"><line x1="2" y1="8" x2="68" y2="8" stroke="#55607a" stroke-width="1.6" stroke-dasharray="6 4"/></svg>비식별 관계 · 모든 PK가 시퀀스 대리키라 FK는 일반 컬럼</div>
+    <div class="row"><svg width="70" height="16"><line x1="2" y1="8" x2="68" y2="8" stroke="#55607a" stroke-width="1.6"/><line x1="10" y1="2" x2="10" y2="14" stroke="#55607a" stroke-width="1.6"/><line x1="15" y1="2" x2="15" y2="14" stroke="#55607a" stroke-width="1.6"/><path d="M56 8 L68 2 M56 8 L68 8 M56 8 L68 14" stroke="#55607a" stroke-width="1.6"/><circle cx="50" cy="8" r="4.5" fill="#fff" stroke="#55607a" stroke-width="1.6"/></svg>1 : 0..N (부모 필수, 자식 0개 이상)</div>
+    <div class="row"><svg width="70" height="16"><line x1="2" y1="8" x2="68" y2="8" stroke="#55607a" stroke-width="1.6"/><line x1="10" y1="2" x2="10" y2="14" stroke="#55607a" stroke-width="1.6"/><line x1="15" y1="2" x2="15" y2="14" stroke="#55607a" stroke-width="1.6"/><path d="M56 8 L68 2 M56 8 L68 8 M56 8 L68 14" stroke="#55607a" stroke-width="1.6"/><line x1="51" y1="2" x2="51" y2="14" stroke="#55607a" stroke-width="1.6"/></svg>1 : 1..N (자식 1개 이상)</div>
+    <div class="row"><svg width="70" height="16"><line x1="2" y1="8" x2="68" y2="8" stroke="#55607a" stroke-width="1.6"/><line x1="10" y1="2" x2="10" y2="14" stroke="#55607a" stroke-width="1.6"/><circle cx="19" cy="8" r="4.5" fill="#fff" stroke="#55607a" stroke-width="1.6"/><path d="M56 8 L68 2 M56 8 L68 8 M56 8 L68 14" stroke="#55607a" stroke-width="1.6"/><circle cx="50" cy="8" r="4.5" fill="#fff" stroke="#55607a" stroke-width="1.6"/></svg>0..1 : 0..N (STORE.owner_id, 관리자 등록 시 NULL)</div>
+    <div class="icons"><span><i class="pk"></i>PK</span><span><i class="fk"></i>FK</span><span><i class="nn"></i>NOT NULL</span><span><i class="nu"></i>NULL 허용</span></div>
+    <div class="dom"><span><em style="background:#f9d977"></em>회원·인증</span><span><em style="background:#b6e3bd"></em>파티</span><span><em style="background:#f6c39b"></em>기록</span><span><em style="background:#a9cdee"></em>테마</span><span><em style="background:#cdb9f0"></em>매장·지역</span></div>
+  </div>
+</div>
+<script>
+{
+const Y='#f9d977',G='#b6e3bd',O='#f6c39b',B='#a9cdee',P='#cdb9f0';
+const V=n=>'VARCHAR2('+n+')', N='NUMBER', D='DATE';
+// [이름, 타입, 표시] 표시: pk / fk / nn(NOT NULL) / nu(NULL 허용)
+const T={
+ REFRESH_TOKEN:{x:80,y:190,c:Y,cols:[['token_id',N,'pk'],['member_id',N,'fk'],['token_hash',V(64),'nn'],['expires_at',D,'nn'],['created_at',D,'nn']]},
+ MEMBER:{x:80,y:360,c:Y,cols:[['member_id',N,'pk'],['login_id',V(30),'nn'],['password',V(60),'nn'],['nickname',V(60),'nn'],['role',V(10),'nn'],['email',V(100),'nu'],['biz_no',V(12),'nu'],['biz_file_path',V(500),'nu'],['created_at',D,'nn'],['withdrawn_at',D,'nu']]},
+ PARTY_MEMBER:{x:80,y:640,c:G,cols:[['id',N,'pk'],['party_id',N,'fk'],['member_id',N,'fk'],['status',V(10),'nn'],['joined_at',D,'nn']]},
+ PARTY_MESSAGE:{x:80,y:820,c:G,cols:[['message_id',N,'pk'],['party_id',N,'fk'],['member_id',N,'fk'],['msg_type',V(10),'nn'],['content',V(1500),'nu'],['created_at',D,'nn']]},
+ WISHLIST:{x:420,y:190,c:O,cols:[['wish_id',N,'pk'],['member_id',N,'fk'],['theme_id',N,'fk'],['created_at',D,'nn']]},
+ REVIEW:{x:420,y:340,c:O,cols:[['review_id',N,'pk'],['member_id',N,'fk'],['theme_id',N,'fk'],['rating','NUMBER(1)','nn'],['escaped','CHAR(1)','nn'],['hint_count','NUMBER(2)','nn'],['player_count','NUMBER(2)','nn'],['remain_minutes','NUMBER(3)','nn'],['remain_seconds','NUMBER(2)','nn'],['played_date',D,'nn'],['content',V(600),'nu'],['status',V(10),'nn'],['created_at',D,'nn']]},
+ PARTY:{x:420,y:650,c:G,cols:[['party_id',N,'pk'],['theme_id',N,'fk'],['leader_id',N,'fk'],['title',V(300),'nn'],['intro',V(300),'nn'],['play_at',D,'nn'],['deadline_at',D,'nn'],['max_people','NUMBER(2)','nn'],['status',V(12),'nn'],['created_at',D,'nn']]},
+ MEMBER_GENRE:{x:420,y:910,c:Y,cols:[['id',N,'pk'],['member_id',N,'fk'],['genre_id',N,'fk']]},
+ THEME:{x:760,y:190,c:B,cols:[['theme_id',N,'pk'],['store_id',N,'fk'],['title',V(150),'nn'],['description',V(4000),'nu'],['difficulty','NUMBER(1)','nn'],['play_minutes','NUMBER(3)','nn'],['min_people','NUMBER(2)','nn'],['max_people','NUMBER(2)','nn'],['price','NUMBER(7)','nn'],['poster_url',V(500),'nu'],['booking_url',V(500),'nn'],['source',V(10),'nn'],['status',V(10),'nn'],['reject_reason',V(900),'nu'],['review_count','NUMBER(6)','nn'],['rating_sum','NUMBER(8)','nn'],['created_at',D,'nn'],['updated_at',D,'nn']]},
+ TIME_SLOT:{x:760,y:600,c:B,cols:[['slot_id',N,'pk'],['theme_id',N,'fk'],['day_type',V(10),'nn'],['start_time',V(5),'nn'],['created_at',D,'nn']]},
+ THEME_GENRE:{x:760,y:770,c:B,cols:[['id',N,'pk'],['theme_id',N,'fk'],['genre_id',N,'fk']]},
+ GENRE:{x:760,y:910,c:B,cols:[['genre_id',N,'pk'],['name',V(30),'nn']]},
+ STORE:{x:1100,y:190,c:P,cols:[['store_id',N,'pk'],['owner_id',N,'fk'],['name',V(150),'nn'],['area',V(30),'fk'],['address',V(300),'nn'],['phone',V(20),'nn'],['website_url',V(500),'nn'],['hours',V(150),'nn'],['intro',V(600),'nu'],['photo_url',V(500),'nu'],['lat','NUMBER(9,6)','nu'],['lng','NUMBER(9,6)','nu'],['biz_place_no',V(14),'nn'],['biz_place_file_path',V(500),'nu'],['status',V(10),'nn'],['reject_reason',V(900),'nu'],['approved_at',D,'nu'],['created_at',D,'nn']]},
+ AREA:{x:1440,y:190,c:P,cols:[['area_id',N,'pk'],['region_id',N,'fk'],['name',V(30),'nn'],['sort_order','NUMBER(3)','nn']]},
+ REGION:{x:1440,y:360,c:P,cols:[['region_id',N,'pk'],['name',V(30),'nn'],['sort_order','NUMBER(3)','nn']]},
+ HOLIDAY:{x:1440,y:520,c:B,cols:[['holiday_date',D,'pk'],['name',V(60),'nn']]}
+};
+const W=250,HH=26,RH=18,FH=18;
+const s=document.getElementById('s');
+const key='<svg width="13" height="13" viewBox="0 0 12 12"><rect x="1" y="2" width="10" height="8" rx="1" fill="none" stroke="#3d4555"/><line x1="1" y1="5" x2="11" y2="5" stroke="#3d4555"/></svg>';
+for(const n in T){const t=T[n];const el=document.createElement('div');el.className='tb';el.style.left=t.x+'px';el.style.top=t.y+'px';
+ el.innerHTML='<div class="h" style="background:'+t.c+'">'+key+n.toLowerCase()+'</div>'+t.cols.map(c=>'<div class="r"><i class="'+c[2]+'"></i>'+c[0]+'<span class="t">'+c[1]+'</span></div>').join('')+'<div class="f">Indexes ▸</div>';
+ s.appendChild(el);t.h=HH+t.cols.length*RH+FH+2;}
+const rowY=(n,col)=>{const t=T[n];const i=t.cols.findIndex(c=>c[0]===col);return t.y+1+HH+i*RH+RH/2;};
+// [부모, 부모 컬럼, 자식, 자식 FK 컬럼, 부모 끝(one|zo), 자식 끝(many|omany), 꺾는 x]
+const R=[
+ ['MEMBER','member_id','REFRESH_TOKEN','member_id','one','many',62],
+ ['MEMBER','member_id','PARTY_MEMBER','member_id','one','many',50],
+ ['MEMBER','member_id','PARTY_MESSAGE','member_id','one','many',38],
+ ['MEMBER','member_id','WISHLIST','member_id','one','many',345],
+ ['MEMBER','member_id','REVIEW','member_id','one','many',357],
+ ['MEMBER','member_id','PARTY','leader_id','one','many',369],
+ ['MEMBER','member_id','MEMBER_GENRE','member_id','one','many',381],
+ ['PARTY','party_id','PARTY_MEMBER','party_id','one','omany',393],
+ ['PARTY','party_id','PARTY_MESSAGE','party_id','one','many',405],
+ ['THEME','theme_id','WISHLIST','theme_id','one','many',740],
+ ['THEME','theme_id','REVIEW','theme_id','one','many',728],
+ ['THEME','theme_id','PARTY','theme_id','one','many',716],
+ ['GENRE','genre_id','MEMBER_GENRE','genre_id','one','many',704],
+ ['GENRE','genre_id','THEME_GENRE','genre_id','one','many',740],
+ ['THEME','theme_id','TIME_SLOT','theme_id','one','many',1030],
+ ['THEME','theme_id','THEME_GENRE','theme_id','one','many',1045],
+ ['STORE','store_id','THEME','store_id','one','many',1062],
+ ['AREA','name','STORE','area','one','many',1395],
+ ['REGION','region_id','AREA','region_id','one','omany',1712]
+];
+const svg=document.getElementById('lines');let out='';
+const C='#55607a';
+function sym(x,y,dx,kind){ // dx: 박스에서 바깥쪽 방향 (+1 오른쪽, -1 왼쪽)
+ const a=(o)=>x+dx*o;let p='';
+ if(kind==='one'){p+=`<line x1="${a(8)}" y1="${y-6}" x2="${a(8)}" y2="${y+6}"/><line x1="${a(13)}" y1="${y-6}" x2="${a(13)}" y2="${y+6}"/>`;}
+ if(kind==='zo'){p+=`<line x1="${a(8)}" y1="${y-6}" x2="${a(8)}" y2="${y+6}"/><circle cx="${a(17)}" cy="${y}" r="4" fill="#fff"/>`;}
+ if(kind==='many'||kind==='omany'){p+=`<path d="M${a(12)} ${y} L${x} ${y-6} M${a(12)} ${y} L${x} ${y} M${a(12)} ${y} L${x} ${y+6}" fill="none"/>`;
+  p+= kind==='many'?`<circle cx="${a(17)}" cy="${y}" r="4" fill="#fff"/>`:`<line x1="${a(16)}" y1="${y-6}" x2="${a(16)}" y2="${y+6}"/>`;}
+ return p;}
+for(const r of R){const P=T[r[0]],Q=T[r[2]],lx=r[6];
+ const py=rowY(r[0],r[1]),qy=rowY(r[2],r[3]);
+ const pr=lx>P.x+W/2, qr=lx>Q.x+W/2;
+ const px=pr?P.x+W:P.x, qx=qr?Q.x+W:Q.x;
+ out+=`<path d="M${px} ${py} H${lx} V${qy} H${qx}" fill="none" stroke="${C}" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+ out+=`<g stroke="${C}" stroke-width="1.5">${sym(px,py,pr?1:-1,r[4])}${sym(qx,qy,qr?1:-1,r[5])}</g>`;}
+// MEMBER → STORE.owner_id (0..1 : 0..N): 위쪽 길로 돌아감
+{const py=rowY('MEMBER','member_id'),qy=rowY('STORE','owner_id');const px=80+W,lane=172;
+ out+=`<path d="M${px} ${py} H333 V${lane} H1085 V${qy} H1100" fill="none" stroke="${C}" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+ out+=`<g stroke="${C}" stroke-width="1.5">${sym(px,py,1,'zo')}${sym(1100,qy,-1,'many')}</g>`;}
+svg.innerHTML=out;
+}
+</script>
+</body></html>
