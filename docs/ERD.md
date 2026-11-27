@@ -13,8 +13,8 @@
 
 ## 1. 한눈에 보는 변경 (v1 → v3)
 
-- 테이블 **15개**.
-- BRAND·REPORT 삭제, HOLIDAY·REGION·AREA(지역) 추가.
+- 테이블 **16개**.
+- BRAND·REPORT 삭제, HOLIDAY·REGION·AREA(지역) 추가, REFRESH_TOKEN(로그인 유지, 11/27) 추가.
 
 | 테이블 | 담당 | 변경 내용 | 근거 |
 | --- | --- | --- | --- |
@@ -35,10 +35,11 @@
 | PARTY | A | 추가: `intro`(방장 한마디), `deadline_at`(모집 기한)<br>변경: `status`에 `DELETED` | 회의 v2-5, 결정 P1 |
 | PARTY_MEMBER | A | 추가: `status`(JOINED/KICKED)<br>삭제: `nickname` 복사본 | 결정 P2·D2 |
 | PARTY_MESSAGE | A | 추가: `msg_type`(채팅/입장/퇴장/강퇴 안내)<br>삭제: `nickname` 복사본 | 결정 P3·D2 |
+| REFRESH_TOKEN (추가) | A | 로그인 유지 토큰. 원문은 쿠키, 여기엔 SHA-256 해시만 (11/27) | Refresh Token 도입 |
 
 **서버 1개 확정에 따른 변경** (결정 D1·D2)
 
-- 회원번호 컬럼 7개 전부 **실제 FK** (STORE.`owner_id`, WISHLIST·REVIEW·MEMBER_GENRE·PARTY_MEMBER·PARTY_MESSAGE.`member_id`, PARTY.`leader_id`).
+- 회원번호 컬럼 8개 전부 **실제 FK** (STORE.`owner_id`, WISHLIST·REVIEW·MEMBER_GENRE·PARTY_MEMBER·PARTY_MESSAGE·REFRESH_TOKEN.`member_id`, PARTY.`leader_id`).
 - 닉네임 **복사본 컬럼 전부 삭제**. 닉네임 표시는 MEMBER JOIN.
 - 닉네임 변경 시 후기·파티·채팅 전체에 즉시 반영.
 
@@ -53,6 +54,7 @@
 | 2 | `alter_member_withdraw.sql` | MEMBER `withdrawn_at` 추가, 닉네임 UNIQUE 인덱스 변경, `member_owner_ck` 변경 |
 | 3 | `alter_store_closed.sql` | STORE `status`에 `CLOSED`, `store_biz_place_uk`를 폐업 제외 인덱스로 변경 |
 | 4 | `alter_store_form.sql` | STORE `biz_place_no` 12 → 14바이트, `intro` NULL 허용 |
+| 5 | `alter_refresh_token.sql` | REFRESH_TOKEN 테이블·`sq_refresh_token` 추가 (11/27) |
 
 - 이메일 인증번호는 서버 메모리 보관. 테이블 없음.
 
@@ -198,6 +200,13 @@ erDiagram
         VARCHAR2 content
         DATE created_at
     }
+    REFRESH_TOKEN {
+        NUMBER token_id PK
+        NUMBER member_id FK
+        VARCHAR2 token_hash UK "SHA-256"
+        DATE expires_at
+        DATE created_at
+    }
 
     MEMBER |o--o{ STORE : "사장"
     REGION ||--|{ AREA : "세부 지역"
@@ -218,6 +227,7 @@ erDiagram
     MEMBER ||--o{ PARTY_MEMBER : "참여"
     PARTY ||--o{ PARTY_MESSAGE : "채팅"
     MEMBER ||--o{ PARTY_MESSAGE : "보냄"
+    MEMBER ||--o{ REFRESH_TOKEN : "로그인 유지"
 ```
 
 - HOLIDAY는 FK 관계 없음. 날짜의 주중/주말 판정 시에만 조회([3-7](#3-7-time_slot--주중주말-반복-시간표-c)).
@@ -542,6 +552,21 @@ CREATE UNIQUE INDEX store_biz_place_uk ON store (CASE WHEN status <> 'CLOSED' TH
 
 - **안내 줄**: 채팅방 중앙에 표시되는 입장·퇴장·강퇴 안내.
 - 안내 줄은 **DB 저장 방식**(결정 P3). 파티 만들기·참여·나가기·강퇴 API에서 **동일 트랜잭션**으로 1행 INSERT.
+
+### 3-15. REFRESH_TOKEN — 로그인 유지 토큰 (A) 추가
+
+| 컬럼 | 타입 | 필수 | 기본값 | 규칙 | 설명 | 변경 |
+| --- | --- | :-: | --- | --- | --- | :-: |
+| token_id | NUMBER | Y | | PK (`sq_refresh_token`) | | 추가 |
+| member_id | NUMBER | Y | | FK → MEMBER, 인덱스 `refresh_token_member_ix` | 토큰 주인 | 추가 |
+| token_hash | VARCHAR2(64) | Y | | UK `refresh_token_hash_uk` | 토큰 원문의 SHA-256(16진수 64자). **원문은 저장 안 함** | 추가 |
+| expires_at | DATE | Y | | | 발급 + 7일(`jwt.refresh-days`) | 추가 |
+| created_at | DATE | Y | SYSDATE | | | 추가 |
+
+- 원문은 로그인·재발급 응답의 `HttpOnly` 쿠키(`refresh_token`)로만 오감. DB가 새도 해시로는 재발급 불가.
+- 재발급(API A-32)할 때마다 쓴 행을 지우고 새 행을 넣음(회전). 한 번 쓴 토큰은 다시 못 씀.
+- 지우는 때: 로그아웃(A-33) 그 행, 비밀번호 변경(A-9)·재설정(A-28)·탈퇴(A-31) 그 회원의 행 전부, 새로 발급할 때 그 회원의 기한 지난 행.
+- 한 회원이 여러 브라우저에서 로그인하면 행도 여러 개.
 
 ---
 
